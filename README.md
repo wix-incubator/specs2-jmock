@@ -13,10 +13,10 @@ class JMockTest extends JMock  {
   "My JMock test" should { 
     "Do something" in {
       val mockFoo = mock(classOf[FooTrait])
-      checking({
+      checking {
         allowing(mockFoo).bar; will(returnValue("foo"))
         oneOf(mockFoo).baz()
-      })
+      }
       val result = mockFoo.bar
       mockFoo.baz
       result must be equalTo "foo"
