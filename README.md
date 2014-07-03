@@ -12,7 +12,7 @@ class JMockTest extends JMock  {
 
   "My JMock test" should { 
     "Do something" in {
-      val mockFoo = mock(classOf[FooTrait])
+      val mockFoo = mock[FooTrait]
       checking {
         allowing(mockFoo).bar; will(returnValue("foo"))
         oneOf(mockFoo).baz()

@@ -7,6 +7,8 @@ import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
 import org.specs2.mutable.Specification
 import org.specs2.specification.AroundExample
 
+import scala.reflect.ClassTag
+
 /*      __ __ _____  __                                              *\
 **     / // // /_/ |/ /          Wix                                 **
 **    / // // / /|   /           (c) 2006-2014, Wix LTD.             **
@@ -35,17 +37,5 @@ trait JMock extends Specification with AroundExample {
   def oneOf[T](t: T): T = {expectations.oneOf(t)}
   def checking(f: => Unit) = {f; context.checking(expectations) }
 
-  def mock[T](c: Class[T]): T = context.mock(c)
-//  class MockeryOps(context: Mockery) {
-//    def checking(f: () => Unit) = {
-//      context.checking(expectations)
-//    }
-//  }
-//  implicit def mockeryToMockeryOps(m: Mockery): MockeryOps = new MockeryOps(m)
-//
-//  implicit class IntWithTimes(mockery: Mockery) {
-//    def checking(f: () => Unit): Expectations = {
-//      new Expectations {{f()}}
-//    }
-//  }
+  def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
 }
