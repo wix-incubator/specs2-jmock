@@ -36,6 +36,7 @@ trait JMock extends Specification with AroundExample {
   def returnValue[T](t: T): Action = {Expectations.returnValue(t)}
   def oneOf[T](t: T): T = {expectations.oneOf(t)}
   def checking(f: => Unit) = {f; context.checking(expectations) }
+  def exactly(count: Int) = {expectations.exactly(count)}
 
   def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
 }
