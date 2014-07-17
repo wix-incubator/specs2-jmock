@@ -33,6 +33,21 @@ class JMockTest extends JMock  {
       result must be equalTo "foo"
     }
 
+    "accept specs2 matcher in with " in {
+      val mockFoo = mock[FooTrait]
+      checking {
+        oneOf(mockFoo).bla(`with`(equalTo("it works")))
+      }
+      mockFoo.bla("it works")
+    }
+
+    "accept the result of any in with" in {
+      val mockFoo = mock[FooTrait]
+      checking {
+        oneOf(mockFoo).bla(`with`(beAnInstanceOf[String]))
+      }
+      mockFoo.bla("bla")
+    }
   }
 }
 
@@ -42,5 +57,5 @@ class JMockTest extends JMock  {
 trait FooTrait {
   def bar:String
   def baz(){}
-
+  def bla(blu: String)
 }
