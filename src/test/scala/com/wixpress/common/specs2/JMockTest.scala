@@ -41,11 +41,19 @@ class JMockTest extends JMock  {
       mockFoo.bla("it works")
     }
 
-    "accept the result of any in with" in {
+    "accept the result of any in `with`" in {
       val mockFoo = mock[FooTrait]
       checking {
         oneOf(mockFoo).bla(`with`(beAnInstanceOf[String]))
       }
+      mockFoo.bla("bla")
+    }
+
+    "accept a string in `with`" in {
+      val mockFoo = mock[FooTrait]
+      checking(
+        oneOf(mockFoo).bla(`with`("bla"))
+      )
       mockFoo.bla("bla")
     }
   }

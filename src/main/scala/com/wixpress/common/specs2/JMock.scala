@@ -47,6 +47,7 @@ trait JMock extends Specification with AroundExample{
   def any[T](implicit t: ClassTag[T]) = beAnInstanceOf(t)
 
   def `with`[T](m: Matcher[T]): T = expectations.`with`(new MatcherAdapter(m))
+  def `with`(str: String) = expectations.`with`(str)
 
   def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
   def states(name: String) = context.states(name)
