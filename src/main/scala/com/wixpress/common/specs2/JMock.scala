@@ -3,6 +3,7 @@ package com.wixpress.common.specs2
 import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
+import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery}
 import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
 import org.specs2.matcher.Matcher
@@ -32,6 +33,8 @@ trait JMock extends Specification with AroundExample{
     def asResult(a: =>A) =
       ResultExecution.effectively { a; Success() }
   }
+
+  def useClassImposterizer() = context.setImposteriser(ClassImposteriser.INSTANCE)
 
 
   def allowing[T](t: T): T = expectations.allowing(t)
