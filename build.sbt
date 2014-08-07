@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "org.jmock" % "jmock-legacy" % "2.6.0"
 )
 
-publishTo := Some("Wix Repository" at "http://repo.dev.wix/artifactory/libs-snapshots")
+publishTo := Some("Wix Repository" at "http://repo.dev.wix/artifactory/libs-snapshots-local")
 
 credentials += Credentials(Path.userHome / ".m2" / ".creds")
 
