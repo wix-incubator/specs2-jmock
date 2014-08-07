@@ -10,6 +10,12 @@ libraryDependencies ++= Seq(
   "org.jmock" % "jmock-legacy" % "2.6.0"
 )
 
+publishTo := Some("Wix Repository" at "http://repo.dev.wix/artifactory/libs-snapshots")
+
+credentials += Credentials(Path.userHome / ".m2" / ".creds")
+
+publishMavenStyle := true
+
 pomExtra :=
 <licenses>
   <license>
