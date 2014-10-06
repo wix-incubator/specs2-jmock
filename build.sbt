@@ -5,7 +5,7 @@ organization := "com.wixpress"
 version := "0.1"
 
 libraryDependencies ++= Seq(
-  "org.specs2" % "specs2_2.10" % "2.3.12",
+  "org.specs2" %% "specs2" % "2.3.12",
   "org.jmock" % "jmock-junit4" % "2.6.0",
   "org.jmock" % "jmock-legacy" % "2.6.0"
 )

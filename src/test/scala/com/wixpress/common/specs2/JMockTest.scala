@@ -1,69 +1,89 @@
 package com.wixpress.common.specs2
 
+import org.specs2.mutable.Specification
+
 import scala.language.implicitConversions
 
 
 
-class JMockTest extends JMock  {
+class JMockTest extends Specification with JMock  {
 
-  "My JMock test" should { 
-    "Do something" in {
-      val mockFoo = mock[FooTrait]
+  "JMock trait" should {
+    "Provide usage of a checking block with jmock expectations in it" in {
+      val mockDummy = mock[Dummy]
       checking {
-        allowing(mockFoo).bar
+        allowing(mockDummy).func1
         will(returnValue("foo"))
-        oneOf(mockFoo).baz()
+        oneOf(mockDummy).func2()
       }
-      val result = mockFoo.bar
-      mockFoo.baz
-      result must be equalTo "foo"
-    }
-
-    "Do somethingElse" in {
-      val mockFoo = mock[FooTrait]
-
-      checking {
-        allowing(mockFoo).bar
-        will(returnValue("foo"))
-        oneOf(mockFoo).baz()
-      }
-
-      val result = mockFoo.bar
-      mockFoo.baz()
+      val result = mockDummy.func1
+      mockDummy.func2()
       result must be equalTo "foo"
     }
 
     "accept specs2 matcher in with " in {
-      val mockFoo = mock[FooTrait]
+      val mockDummy = mock[Dummy]
       checking {
-        oneOf(mockFoo).bla(`with`(equalTo("it works")))
+        oneOf(mockDummy).func3(`with`(equalTo("it works")))
       }
-      mockFoo.bla("it works")
+      mockDummy.func3("it works")
     }
 
     "accept the result of any in `with`" in {
-      val mockFoo = mock[FooTrait]
+      val mockDummy = mock[Dummy]
       checking {
-        oneOf(mockFoo).bla(`with`(beAnInstanceOf[String]))
+        oneOf(mockDummy).func3(`with`(any[String]))
       }
-      mockFoo.bla("bla")
+      mockDummy.func3("bla")
     }
 
     "accept a string in `with`" in {
-      val mockFoo = mock[FooTrait]
+      val mockDummy = mock[Dummy]
       checking(
-        oneOf(mockFoo).bla(`with`("bla"))
+        oneOf(mockDummy).func3(`with`("bla"))
       )
-      mockFoo.bla("bla")
+      mockDummy.func3("bla")
+    }
+
+    "accept an Int in `with`" in {
+      val mockDummy = mock[Dummy]
+      checking(
+        oneOf(mockDummy).func4(`with`(5))
+      )
+      mockDummy.func4(5)
+    }
+
+    "accept sequence directives" in {
+      val seq = sequence("mySequence")
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func1; inSequence(seq)
+        oneOf(mockDummy).func2(); inSequence(seq)
+      }
+      mockDummy.func1
+      mockDummy.func2()
+    }
+
+    "accept onConsecutiveCalls in a will" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        atLeast(1).of(mockDummy).increment; will(onConsecutiveCalls(
+          returnValue(0),
+          returnValue(1),
+          returnValue(2)
+        ))
+      }
+      mockDummy.increment must beEqualTo(0)
+      mockDummy.increment must beEqualTo(1)
+      mockDummy.increment must beEqualTo(2)
     }
   }
 }
 
-
-
-
-trait FooTrait {
-  def bar:String
-  def baz(){}
-  def bla(blu: String)
+trait Dummy {
+  def func1: String
+  def func2(){}
+  def func3(arg: String)
+  def func4(arg: Int)
+  def increment: Int
 }

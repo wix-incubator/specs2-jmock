@@ -4,11 +4,11 @@ import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
 import org.jmock.lib.legacy.ClassImposteriser
-import org.jmock.{Expectations, Mockery}
+import org.jmock.{Sequence, Expectations, Mockery}
 import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
-import org.specs2.matcher.Matcher
+import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
+import org.specs2.matcher.{Matcher, MustMatchers}
 import org.specs2.mock.MatcherAdapter
-import org.specs2.mutable.Specification
 import org.specs2.specification.AroundExample
 
 import scala.reflect.ClassTag
@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
 **   \__/|__/_//_/| |                                                **
 \*                |/                                                 */
 
-trait JMock extends Specification with AroundExample{
+trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with ArgumentsArgs{
   isolated
   private[this] val context:Mockery = new Mockery{{setThreadingPolicy(new Synchroniser)}}
   val expectations = new Expectations
@@ -39,6 +39,7 @@ trait JMock extends Specification with AroundExample{
 
   def allowing[T](t: T): T = expectations.allowing(t)
   def will(action: Action) = expectations.will(action)
+  def onConsecutiveCalls(actions: Action*) = Expectations.onConsecutiveCalls(actions:_*)
   def returnValue[T](t: T): Action = Expectations.returnValue(t)
   def oneOf[T](t: T): T = expectations.oneOf(t)
   def checking(f: => Unit) = {f; context.checking(expectations)}
@@ -50,9 +51,12 @@ trait JMock extends Specification with AroundExample{
   def any[T](implicit t: ClassTag[T]) = beAnInstanceOf(t)
 
   def `with`[T](m: Matcher[T]): T = expectations.`with`(new MatcherAdapter(m))
-  def `with`(str: String) = expectations.`with`(str)
+  def `with`[T](value: T) = expectations.`with`(value)
 
   def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
   def states(name: String) = context.states(name)
+
+  def inSequence(sequence: Sequence) = expectations.inSequence(sequence)
+  def sequence(name: String) = context.sequence(name)
 }
 
