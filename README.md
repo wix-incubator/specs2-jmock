@@ -8,7 +8,7 @@ Mixin the `JMock` trait to your Specification class, and use the DSL.
 
 #Example
 ```Scala
-class JMockTest extends JMock  {
+class JMockTest extends Specification with JMock  {
 
   "My JMock test" should { 
     "Do something" in {
