@@ -4,6 +4,8 @@ organization := "com.wixpress"
 
 version := "0.1"
 
+crossScalaVersions := Seq("2.10.4", "2.11.4")
+
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2" % "2.3.12",
   "org.jmock" % "jmock-junit4" % "2.6.0",
@@ -24,3 +26,5 @@ pomExtra :=
     <distribution>repo</distribution>
   </license>
 </licenses>
+
+releaseSettings
