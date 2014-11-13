@@ -77,6 +77,19 @@ class JMockTest extends Specification with JMock  {
       mockDummy.increment must beEqualTo(1)
       mockDummy.increment must beEqualTo(2)
     }
+
+    "accept creating two mocks with name" in {
+      val mockDummy1 = mock[Dummy]("dummy1")
+      val mockDummy2 = mock[Dummy]("dummy2")
+
+      checking{
+        oneOf(mockDummy1).func1
+        oneOf(mockDummy2).func2
+      }
+
+      mockDummy1.func1
+      mockDummy2.func2
+    }
   }
 }
 

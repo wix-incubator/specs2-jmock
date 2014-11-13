@@ -54,6 +54,8 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
   def `with`[T](value: T) = expectations.`with`(value)
 
   def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
+  def mock[T](name: String)(implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]], name)
+
   def states(name: String) = context.states(name)
 
   def inSequence(sequence: Sequence) = expectations.inSequence(sequence)
