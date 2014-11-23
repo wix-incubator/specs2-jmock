@@ -1,5 +1,7 @@
 name := "specs2-jmock"
 
+description := "A specs2 JMock integration layer, that provides a nice DSL, especially targeted at people used to JMock in Java and Junit."
+
 organization := "com.wixpress"
 
 version := "0.1"
@@ -26,5 +28,15 @@ pomExtra :=
     <distribution>repo</distribution>
   </license>
 </licenses>
+<developers>
+  <developer>
+    <name>Nimrod Argov</name>
+    <email>nimroda@wix.com</email>
+    <organization>Wix</organization>
+    <roles>
+      <role>owner</role>
+    </roles>
+  </developer>
+</developers>
 
 releaseSettings
