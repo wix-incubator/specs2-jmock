@@ -1,12 +1,20 @@
 package com.wixpress.common.specs2
 
+import java.util.concurrent.Executors
+
+import org.jmock.States
 import org.specs2.mutable.Specification
 
 import scala.language.implicitConversions
 
 
+class JMockTest extends Specification with JMock {
 
-class JMockTest extends Specification with JMock  {
+  def toRunnable(func: String): Runnable with Object {def run(): Unit} = {
+    new Runnable() {
+      override def run(): Unit = func
+    }
+  }
 
   "JMock trait" should {
     "Provide usage of a checking block with jmock expectations in it" in {
@@ -78,11 +86,11 @@ class JMockTest extends Specification with JMock  {
       mockDummy.increment must beEqualTo(2)
     }
 
-    "accept creating two mocks with name" in {
+    "accept creating two mocks of the same type different names" in {
       val mockDummy1 = mock[Dummy]("dummy1")
       val mockDummy2 = mock[Dummy]("dummy2")
 
-      checking{
+      checking {
         oneOf(mockDummy1).func1
         oneOf(mockDummy2).func2
       }
@@ -90,12 +98,26 @@ class JMockTest extends Specification with JMock  {
       mockDummy1.func1
       mockDummy2.func2
     }
+
+    "support waitUntil mechanism" in {
+      val stateMachine: States = states("start")
+      val mockDummy1 = mock[Dummy]
+
+      checking {
+        oneOf(mockDummy1).func1
+        then(stateMachine.is("end"))
+      }
+
+      Executors.newSingleThreadExecutor().execute(toRunnable(mockDummy1.func1))
+
+      waitUntil(stateMachine.is("end"), 1)
+    }
   }
 }
 
 trait Dummy {
   def func1: String
-  def func2(){}
+  def func2() {}
   def func3(arg: String)
   def func4(arg: Int)
   def increment: Int

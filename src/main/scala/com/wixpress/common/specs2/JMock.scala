@@ -22,7 +22,9 @@ import scala.reflect.ClassTag
 
 trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with ArgumentsArgs{
   isolated
-  private[this] val context:Mockery = new Mockery{{setThreadingPolicy(new Synchroniser)}}
+
+  private val synchroniser: Synchroniser = new Synchroniser
+  private[this] val context:Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
   val expectations = new Expectations
 
   protected def around[T : AsResult](t: =>T): Result = {
@@ -60,5 +62,8 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
 
   def inSequence(sequence: Sequence) = expectations.inSequence(sequence)
   def sequence(name: String) = context.sequence(name)
+
+  def waitUntil(p : StatePredicate) = synchroniser.waitUntil(p)
+  def waitUntil(p : StatePredicate, timeoutMs : Long) = synchroniser.waitUntil(p,timeoutMs)
 }
 
