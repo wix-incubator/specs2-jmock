@@ -112,6 +112,16 @@ class JMockTest extends Specification with JMock {
 
       waitUntil(stateMachine.is("end"), 1)
     }
+
+    "allow to expect an exception from a mock" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).func1
+        will(throwException(new NullPointerException))
+      }
+
+      mockDummy.func1 must throwA[NullPointerException]
+    }
   }
 }
 

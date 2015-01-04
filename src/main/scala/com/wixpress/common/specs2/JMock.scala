@@ -43,6 +43,7 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
   def will(action: Action) = expectations.will(action)
   def onConsecutiveCalls(actions: Action*) = Expectations.onConsecutiveCalls(actions:_*)
   def returnValue[T](t: T): Action = Expectations.returnValue(t)
+  def throwException(e:Throwable) : Action = Expectations.throwException(e)
   def oneOf[T](t: T): T = expectations.oneOf(t)
   def checking(f: => Unit) = {f; context.checking(expectations)}
   def exactly(count: Int) = expectations.exactly(count)
