@@ -122,6 +122,13 @@ class JMockTest extends Specification with JMock {
 
       mockDummy.func1 must throwA[NullPointerException]
     }
+
+    "support never expectation" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        never(mockDummy).func1
+      }
+    }
   }
 }
 
