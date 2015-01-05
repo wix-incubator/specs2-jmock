@@ -10,10 +10,8 @@ import scala.language.implicitConversions
 
 class JMockTest extends Specification with JMock {
 
-  def toRunnable(func: String): Runnable with Object {def run(): Unit} = {
-    new Runnable() {
-      override def run(): Unit = func
-    }
+  def toRunnable(func: => String): Runnable = new Runnable() {
+    override def run(): Unit = func
   }
 
   "JMock trait" should {
@@ -37,10 +35,26 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("it works")
     }
 
+    "accept specs2 matcher in having (alternative to `with`) " in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func3(having(equalTo("it works")))
+      }
+      mockDummy.func3("it works")
+    }
+
     "accept the result of any in `with`" in {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func3(`with`(any[String]))
+      }
+      mockDummy.func3("bla")
+    }
+
+    "accept the result of any in having (alternative to `with`)" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func3(having(any[String]))
       }
       mockDummy.func3("bla")
     }

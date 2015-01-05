@@ -50,12 +50,16 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
   def exactly(count: Int) = expectations.exactly(count)
   def atLeast(count: Int) = expectations.atLeast(count)
   def ignoring[T](mockObject: T) = expectations.ignoring(mockObject)
+  @deprecated("then is now a deprecated identifier in scala, use set instead.")
   def then(state: State) = expectations.then(state)
+  def set(state: State) = expectations.then(state)
   def when(predicate: StatePredicate) = expectations.when(predicate)
   def any[T](implicit t: ClassTag[T]) = beAnInstanceOf(t)
 
   def `with`[T](m: Matcher[T]): T = expectations.`with`(new MatcherAdapter(m))
   def `with`[T](value: T) = expectations.`with`(value)
+  def having[T](m: Matcher[T]): T = expectations.`with`(new MatcherAdapter(m))
+  def having[T](value: T) = expectations.`with`(value)
 
   def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
   def mock[T](name: String)(implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]], name)

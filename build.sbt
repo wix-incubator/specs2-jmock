@@ -4,7 +4,7 @@ description := "A specs2 JMock integration layer, that provides a nice DSL, espe
 
 organization := "com.wixpress"
 
-version := "0.1"
+version := "0.1.2"
 
 crossScalaVersions := Seq("2.10.4", "2.11.4")
 
@@ -14,7 +14,13 @@ libraryDependencies ++= Seq(
   "org.jmock" % "jmock-legacy" % "2.6.0"
 )
 
-publishTo := Some("Wix Repository" at "http://repo.dev.wix/artifactory/libs-snapshots-local")
+publishTo := {
+  val wixRepo = "http://repo.dev.wix/artifactory/libs-"
+  if(isSnapshot.value)
+    Some("Wix Repo Snapshots" at wixRepo + "snapshots-local")
+  else
+    Some("Wix Repo Releases" at wixRepo + "releases-local")
+}
 
 credentials += Credentials(Path.userHome / ".m2" / ".creds")
 
