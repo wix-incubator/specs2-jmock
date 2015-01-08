@@ -4,8 +4,6 @@ description := "A specs2 JMock integration layer, that provides a nice DSL, espe
 
 organization := "com.wixpress"
 
-version := "0.1.2"
-
 crossScalaVersions := Seq("2.10.4", "2.11.4")
 
 libraryDependencies ++= Seq(
