@@ -144,6 +144,50 @@ class JMockTest extends Specification with JMock {
       }
     }
   }
+
+  "JMock.Stubbed implicit class" should {
+    "support willReturn" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func1 willReturn "some"
+      }
+
+      mockDummy.func1 mustEqual "some"
+    }
+
+    "support willThrow" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func1 willThrow new RuntimeException
+      }
+
+      mockDummy.func1 must throwA[RuntimeException]
+    }
+
+    "support will with single arg as JMock.will" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).func1 will returnValue("some")
+      }
+
+      mockDummy.func1 mustEqual "some"
+      mockDummy.func1 mustEqual "some"
+    }
+
+    "support will with varargs as JMock.onConsecutiveCalls" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).func1 will(
+          returnValue("first"),
+          returnValue("second")
+          )
+      }
+
+      mockDummy.func1 mustEqual "first"
+      mockDummy.func1 mustEqual "second"
+    }
+
+  }
 }
 
 trait Dummy {
