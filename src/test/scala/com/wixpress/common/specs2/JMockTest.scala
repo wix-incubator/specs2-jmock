@@ -145,8 +145,8 @@ class JMockTest extends Specification with JMock {
     }
   }
 
-  "JMock.Stubbed implicit class" should {
-    "support willReturn" in {
+  "JMock.Stubbed" >> {
+    "'willReturn' should work as will(returnValue)" in {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func1 willReturn "some"
@@ -155,7 +155,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 mustEqual "some"
     }
 
-    "support willThrow" in {
+    "'willThrow' should work as will(throwException)" in {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func1 willThrow new RuntimeException
@@ -164,7 +164,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 must throwA[RuntimeException]
     }
 
-    "support will with single arg as JMock.will" in {
+    "'will' with a single arg should act as JMock.will" in {
       val mockDummy = mock[Dummy]
       checking {
         allowing(mockDummy).func1 will returnValue("some")
@@ -174,13 +174,12 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 mustEqual "some"
     }
 
-    "support will with varargs as JMock.onConsecutiveCalls" in {
+    "'will' with multiple args should act as JMock.will with onConsecutiveCalls" in {
       val mockDummy = mock[Dummy]
       checking {
-        allowing(mockDummy).func1 will(
+        allowing(mockDummy).func1 will (
           returnValue("first"),
-          returnValue("second")
-          )
+          returnValue("second"))
       }
 
       mockDummy.func1 mustEqual "first"

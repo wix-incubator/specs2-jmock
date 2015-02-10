@@ -73,13 +73,16 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
   def waitUntil(p : StatePredicate, timeoutMs : Long) = synchroniser.waitUntil(p,timeoutMs)
 
   implicit class Stubbed [T](c: T) {
+
     def will(action: Action, consecutive: Action*): Unit = {
       if (consecutive.isEmpty)
         expectations.will(action)
       else
         expectations.will(Expectations.onConsecutiveCalls((action +:consecutive):_*))
     }
+
     def willReturn[K](t: K): Unit = will(returnValue(t))
+    
     def willThrow[K <: Throwable](t: K): Unit = will(throwException(t))
   }
 }
