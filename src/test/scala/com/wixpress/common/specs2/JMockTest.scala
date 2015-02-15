@@ -3,6 +3,7 @@ package com.wixpress.common.specs2
 import java.util.concurrent.Executors
 
 import org.jmock.States
+import org.specs2.matcher.BeEqualTo
 import org.specs2.mutable.Specification
 
 import scala.language.implicitConversions
@@ -30,15 +31,24 @@ class JMockTest extends Specification with JMock {
     "accept specs2 matcher in with " in {
       val mockDummy = mock[Dummy]
       checking {
-        oneOf(mockDummy).func3(`with`(equalTo("it works")))
+        val to: BeEqualTo = equalTo("it works")
+        oneOf(mockDummy).func3(`with`[String](to))
       }
       mockDummy.func3("it works")
+    }
+
+    "accept specs2 beNull matcher in with " in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func3(`with`(beNull).asInstanceOf[String])
+      }
+      mockDummy.func3(null)
     }
 
     "accept specs2 matcher in having (alternative to `with`) " in {
       val mockDummy = mock[Dummy]
       checking {
-        oneOf(mockDummy).func3(having(equalTo("it works")))
+        oneOf(mockDummy).func3(having[String](equalTo("it works")))
       }
       mockDummy.func3("it works")
     }
@@ -143,6 +153,15 @@ class JMockTest extends Specification with JMock {
         never(mockDummy).func1
       }
     }
+
+    "have `any` return a matcher of the right class" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func3(having(any[String]))
+      }
+
+      mockDummy.func3("bla")
+    }
   }
 }
 
@@ -150,6 +169,7 @@ trait Dummy {
   def func1: String
   def func2() {}
   def func3(arg: String)
+  def func3(arg: Boolean)
   def func4(arg: Int)
   def increment: Int
 }
