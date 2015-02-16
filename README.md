@@ -25,7 +25,7 @@ class JMockTest extends Specification with JMock  {
     
   }
 ```
-mocking Laboratory? see [jmocking-petri-laboratory](wiki/jmocking-petri-laboratory#jmocking-petri-laboratory)
+mocking Laboratory? see [jmocking-petri-laboratory](https://github.com/wix/specs2-jmock/wiki/jmocking-petri-laboratory#jmocking-petri-laboratory)
 
   
   
