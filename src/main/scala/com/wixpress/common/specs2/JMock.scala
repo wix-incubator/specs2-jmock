@@ -42,7 +42,7 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
   def allowing[T](t: T): T = expectations.allowing(t)
   def never[T](t: T): T = expectations.never(t)
   def will(action: Action) = expectations.will(action)
-  def onConsecutiveCalls(actions: Action*) = Expectations.onConsecutiveCalls(actions:_*)
+  def onConsecutiveCalls(actions: Action*): Action = Expectations.onConsecutiveCalls(actions:_*)
   def returnValue[T](t: T): Action = Expectations.returnValue(t)
   def throwException(e:Throwable) : Action = Expectations.throwException(e)
   def oneOf[T](t: T): T = expectations.oneOf(t)
@@ -71,5 +71,19 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
 
   def waitUntil(p : StatePredicate) = synchroniser.waitUntil(p)
   def waitUntil(p : StatePredicate, timeoutMs : Long) = synchroniser.waitUntil(p,timeoutMs)
+
+  implicit class Stubbed [T](c: T) {
+
+    def will(action: Action, consecutive: Action*): Unit = {
+      if (consecutive.isEmpty)
+        expectations.will(action)
+      else
+        expectations.will(Expectations.onConsecutiveCalls((action +:consecutive):_*))
+    }
+
+    def willReturn[K](t: K): Unit = will(returnValue(t))
+    
+    def willThrow[K <: Throwable](t: K): Unit = will(throwException(t))
+  }
 }
 

@@ -163,6 +163,49 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("bla")
     }
   }
+
+  "JMock.Stubbed" >> {
+    "'willReturn' should work as will(returnValue)" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func1 willReturn "some"
+      }
+
+      mockDummy.func1 mustEqual "some"
+    }
+
+    "'willThrow' should work as will(throwException)" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func1 willThrow new RuntimeException
+      }
+
+      mockDummy.func1 must throwA[RuntimeException]
+    }
+
+    "'will' with a single arg should act as JMock.will" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).func1 will returnValue("some")
+      }
+
+      mockDummy.func1 mustEqual "some"
+      mockDummy.func1 mustEqual "some"
+    }
+
+    "'will' with multiple args should act as JMock.will with onConsecutiveCalls" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).func1 will (
+          returnValue("first"),
+          returnValue("second"))
+      }
+
+      mockDummy.func1 mustEqual "first"
+      mockDummy.func1 mustEqual "second"
+    }
+
+  }
 }
 
 trait Dummy {
