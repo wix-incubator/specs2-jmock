@@ -81,7 +81,7 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
         expectations.will(Expectations.onConsecutiveCalls((action +:consecutive):_*))
     }
 
-    def willReturn[K](t: K): Unit = will(returnValue(t))
+    def willReturn[K <: T](t: K): Unit = will(returnValue(t))
     
     def willThrow[K <: Throwable](t: K): Unit = will(throwException(t))
   }
