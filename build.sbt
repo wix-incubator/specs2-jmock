@@ -6,11 +6,19 @@ organization := "com.wixpress"
 
 crossScalaVersions := Seq("2.10.4", "2.11.4")
 
+scalaVersion := "2.11.4"
+
+resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+
 libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2" % "2.3.12",
+  "org.specs2" %% "specs2-core" % "2.4.11",
   "org.jmock" % "jmock-junit4" % "2.6.0",
-  "org.jmock" % "jmock-legacy" % "2.6.0"
+  "org.jmock" % "jmock-legacy" % "2.6.0",
+  "org.hamcrest" % "hamcrest-core" % "1.3",
+  "org.hamcrest" % "hamcrest-library" % "1.3"
 )
+
+scalacOptions in Test ++= Seq("-Yrangepos")
 
 publishTo := {
   val wixRepo = "http://repo.dev.wix/artifactory/libs-"
