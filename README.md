@@ -14,7 +14,7 @@ class JMockTest extends Specification with JMock  {
     "Do something" in {
       val mockFoo = mock[FooTrait]
       checking {
-        allowing(mockFoo).bar; will(returnValue("foo"))
+        allowing(mockFoo).bar.willReturn("foo")
         oneOf(mockFoo).baz()
       }
       val result = mockFoo.bar
