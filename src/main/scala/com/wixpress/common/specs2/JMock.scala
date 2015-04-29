@@ -4,11 +4,11 @@ import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
 import org.jmock.lib.legacy.ClassImposteriser
-import org.jmock.{Sequence, Expectations, Mockery}
+import org.jmock.{Expectations, Mockery, Sequence}
 import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
 import org.specs2.matcher.{Matcher, MustMatchers}
-import org.specs2.mock.MatcherAdapter
+import org.specs2.mock.HamcrestMatcherAdapter
 import org.specs2.specification.AroundExample
 
 import scala.reflect.ClassTag
@@ -56,9 +56,9 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
   def when(predicate: StatePredicate) = expectations.when(predicate)
   def any[T](implicit t: ClassTag[T]): Matcher[T] = beAnInstanceOf(t)
 
-  def `with`[T](m: Matcher[T]): T = expectations.`with`(MatcherAdapter(m))
+  def `with`[T](m: Matcher[T]): T = expectations.`with`(HamcrestMatcherAdapter(m))
   def `with`[T](value: T): T = expectations.`with`(value)
-  def having[T](m: Matcher[T]): T = expectations.`with`(MatcherAdapter(m))
+  def having[T](m: Matcher[T]): T = expectations.`with`(HamcrestMatcherAdapter(m))
   def having[T](value: T): T = expectations.`with`(value)
 
   def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])

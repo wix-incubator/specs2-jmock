@@ -4,14 +4,14 @@ description := "A specs2 JMock integration layer, that provides a nice DSL, espe
 
 organization := "com.wixpress"
 
-crossScalaVersions := Seq("2.10.4", "2.11.4")
-
-scalaVersion := "2.11.4"
+crossScalaVersions := Seq("2.10.5", "2.11.6")
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
 libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2-core" % "2.4.11",
+  "org.specs2" %% "specs2-core" % "3.5",
+  "org.specs2" %% "specs2-mock" % "3.5",
+//  "org.specs2" %% "specs2-core" % "2.4.11",
   "org.jmock" % "jmock-junit4" % "2.6.0",
   "org.jmock" % "jmock-legacy" % "2.6.0",
   "org.hamcrest" % "hamcrest-core" % "1.3",
