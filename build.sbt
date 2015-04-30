@@ -24,11 +24,17 @@ libraryDependencies ++= Seq(
 scalacOptions in Test ++= Seq("-Yrangepos")
 
 publishTo := {
-  val sonatype = "https://oss.sonatype.org"
+  val wixRepo = "http://repo.dev.wix/artifactory/libs-"
   if(isSnapshot.value)
-    Some("Snapshots" at s"$sonatype/content/repositories/snapshots")
+    Some("Wix Repo Snapshots" at wixRepo + "snapshots-local")
   else
-    Some("Releases" at s"$sonatype/service/local/staging/deploy/maven2")
+    Some("Wix Repo Releases" at wixRepo + "releases-local")
+
+//  val sonatype = "https://oss.sonatype.org"
+//  if(isSnapshot.value)
+//    Some("Snapshots" at s"$sonatype/content/repositories/snapshots")
+//  else
+//    Some("Releases" at s"$sonatype/service/local/staging/deploy/maven2")
 }
 
 credentials += Credentials(Path.userHome / ".m2" / ".creds")
