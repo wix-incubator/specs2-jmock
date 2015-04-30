@@ -24,11 +24,11 @@ libraryDependencies ++= Seq(
 scalacOptions in Test ++= Seq("-Yrangepos")
 
 publishTo := {
-  val wixRepo = "http://repo.dev.wix/artifactory/libs-"
+  val sonatype = "https://oss.sonatype.org"
   if(isSnapshot.value)
-    Some("Wix Repo Snapshots" at wixRepo + "snapshots-local")
+    Some("Snapshots" at s"$sonatype/content/repositories/snapshots")
   else
-    Some("Wix Repo Releases" at wixRepo + "releases-local")
+    Some("Releases" at s"$sonatype/service/local/staging/deploy/maven2")
 }
 
 credentials += Credentials(Path.userHome / ".m2" / ".creds")
@@ -38,6 +38,8 @@ publishMavenStyle := true
 publishArtifact in Test := false
 
 ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
+
+ReleaseKeys.crossBuild := true
 
 licenses := Seq("BSD-style" → url("http://www.opensource.org/licenses/bsd-license.php"))
 
