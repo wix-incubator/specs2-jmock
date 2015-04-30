@@ -29,7 +29,6 @@ publishTo := {
     Some("Wix Repo Snapshots" at wixRepo + "snapshots-local")
   else
     Some("Wix Repo Releases" at wixRepo + "releases-local")
-
 //  val sonatype = "https://oss.sonatype.org"
 //  if(isSnapshot.value)
 //    Some("Snapshots" at s"$sonatype/content/repositories/snapshots")
