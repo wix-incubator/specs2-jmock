@@ -162,6 +162,16 @@ class JMockTest extends Specification with JMock {
 
       mockDummy.func3("bla")
     }
+
+    "have any[Boolean] work properly" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcBool(having(any[Boolean]))
+      }
+
+      false should beAnInstanceOf[Boolean]
+      mockDummy.funcBool(false)
+    }
   }
 
   "JMock.Stubbed" >> {
@@ -213,6 +223,7 @@ trait Dummy {
   def func2() {}
   def func3(arg: String)
   def func3(arg: Boolean)
+  def funcBool(arg: Boolean) : Boolean
   def func4(arg: Int)
   def increment: Int
 }
