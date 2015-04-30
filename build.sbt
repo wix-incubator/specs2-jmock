@@ -41,9 +41,18 @@ ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
 
 licenses := Seq("BSD-style" → url("http://www.opensource.org/licenses/bsd-license.php"))
 
+pomIncludeRepository := { _ ⇒ false }
+
+homepage := Some(url("https://github.com/wix/specs2-jmock"))
+
 pomExtra :=
+<scm>
+  <url>git@github.com:wix/specs2-jmock.git</url>
+  <connection>scm:git:git@github.com:wix/specs2-jmock.git</connection>
+</scm>
 <developers>
   <developer>
+    <id>nimroda</id>
     <name>Nimrod Argov</name>
     <email>nimroda@wix.com</email>
     <organization>Wix</organization>
