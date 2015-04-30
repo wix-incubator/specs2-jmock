@@ -1,17 +1,20 @@
+releaseSettings
+
 name := "specs2-jmock"
 
-description := "A specs2 JMock integration layer, that provides a nice DSL, especially targeted at people used to JMock in Java and Junit."
+description := "A specs2 JMock integration layer that provides a nice DSL, especially targeted at people used to JMock in Java and Junit."
 
 organization := "com.wixpress"
 
 crossScalaVersions := Seq("2.10.5", "2.11.6")
+
+scalaVersion := "2.11.6"
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "3.5",
   "org.specs2" %% "specs2-mock" % "3.5",
-//  "org.specs2" %% "specs2-core" % "2.4.11",
   "org.jmock" % "jmock-junit4" % "2.6.0",
   "org.jmock" % "jmock-legacy" % "2.6.0",
   "org.hamcrest" % "hamcrest-core" % "1.3",
@@ -32,14 +35,13 @@ credentials += Credentials(Path.userHome / ".m2" / ".creds")
 
 publishMavenStyle := true
 
+publishArtifact in Test := false
+
+ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
+
+licenses := Seq("BSD-style" → url("http://www.opensource.org/licenses/bsd-license.php"))
+
 pomExtra :=
-<licenses>
-  <license>
-    <name>LGPLv3</name>
-    <url>https://www.gnu.org/licenses/lgpl.html</url>
-    <distribution>repo</distribution>
-  </license>
-</licenses>
 <developers>
   <developer>
     <name>Nimrod Argov</name>
@@ -50,5 +52,3 @@ pomExtra :=
     </roles>
   </developer>
 </developers>
-
-releaseSettings

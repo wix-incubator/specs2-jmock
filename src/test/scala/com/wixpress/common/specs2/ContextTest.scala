@@ -5,6 +5,9 @@ import org.specs2.specification.Scope
 
 class ContextTest extends Specification with JMock{
 
+  sequential
+
+
   trait Context extends Scope {
     val mockFoo = mock[Foo]
   }
@@ -25,7 +28,7 @@ class ContextTest extends Specification with JMock{
       }
 
       new Bar(mockFoo)
-    }
+    }.pendingUntilFixed("See https://github.com/etorreborre/specs2/issues/366")
   }
 }
 

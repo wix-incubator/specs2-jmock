@@ -9,18 +9,18 @@ import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
 import org.specs2.matcher.{Matcher, MustMatchers}
 import org.specs2.mock.HamcrestMatcherAdapter
-import org.specs2.specification.AroundExample
+import org.specs2.specification.AroundEach
 
 import scala.reflect.ClassTag
 
 /*      __ __ _____  __                                              *\
 **     / // // /_/ |/ /          Wix                                 **
-**    / // // / /|   /           (c) 2006-2014, Wix LTD.             **
+**    / // // / /|   /           (c) Wix LTD.                        **
 **   / // // / //   |            http://www.wix.com/                 **
 **   \__/|__/_//_/| |                                                **
 \*                |/                                                 */
 
-trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with ArgumentsArgs{
+trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with ArgumentsArgs {
   isolated
 
   private val synchroniser: Synchroniser = new Synchroniser
@@ -86,4 +86,3 @@ trait JMock extends MustMatchers with AroundExample with ArgumentsShortcuts with
     def willThrow[K <: Throwable](t: K): Unit = will(throwException(t))
   }
 }
-
