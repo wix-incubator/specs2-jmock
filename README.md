@@ -1,4 +1,4 @@
-specs2-jmock
+specs2-jmock [![Build Status](https://travis-ci.org/wix/specs2-jmock.svg?branch=master)](https://travis-ci.org/wix/specs2-jmock)
 ============
 
 This is a specs2 adapter + DSL for using the popular mocking framework JMock
