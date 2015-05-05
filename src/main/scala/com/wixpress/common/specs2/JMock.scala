@@ -59,9 +59,8 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
   def any[T](implicit ct: ClassTag[T]): Matcher[T] = new Matcher[T] {
     override def apply[S <: T](t: Expectable[S]): MatchResult[S] = {
       val superClass = ct.runtimeClass
-      println("superClass = " + superClass)
-      val expectableClass = t.value.getClass
-      println("expectableClass = " + expectableClass)
+      val expectedValue: S = t.value
+      val expectableClass = expectedValue.getClass
       val IntClass = classOf[Int]
       val ShortClass = classOf[Short]
       val LongClass = classOf[Long]
@@ -69,12 +68,12 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
       val DoubleClass = classOf[Double]
       val BooleanClass = classOf[Boolean]
       val isMatching = superClass match {
-        case IntClass ⇒ IntClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Integer]
-        case DoubleClass ⇒ DoubleClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Double]
-        case ShortClass ⇒ ShortClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Short]
-        case FloatClass ⇒ FloatClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Float]
-        case LongClass ⇒ LongClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Long]
-        case BooleanClass ⇒ BooleanClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Boolean]
+        case IntClass ⇒ IntClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Integer]
+        case DoubleClass ⇒ DoubleClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Double]
+        case ShortClass ⇒ ShortClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Short]
+        case FloatClass ⇒ FloatClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Float]
+        case LongClass ⇒ LongClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Long]
+        case BooleanClass ⇒ BooleanClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Boolean]
         case _ ⇒ superClass.isAssignableFrom(expectableClass)
       }
 
