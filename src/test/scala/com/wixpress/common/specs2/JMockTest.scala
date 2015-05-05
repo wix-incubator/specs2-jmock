@@ -162,6 +162,78 @@ class JMockTest extends Specification with JMock {
 
       mockDummy.func3("bla")
     }
+
+    "support any[Integer]" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func4(having(any[Int]))
+      }
+
+      mockDummy.func4(5)
+    }
+
+    "support any[Integer]" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).func4(having(any[Int]))
+      }
+
+      mockDummy.func4(Int.MaxValue)
+    }
+
+    "support any[Long]" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcLong(having(any[Long]))
+      }
+
+      mockDummy.funcLong(5L)
+    }
+
+    "support any[Short]" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcShort(having(any[Short]))
+      }
+
+      mockDummy.funcShort(5.toShort)
+    }
+
+    "support any[Float]" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcFloat(having(any[Float]))
+      }
+
+      mockDummy.funcFloat(5.0f)
+    }
+
+    "support any[Double]" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcDouble(having(any[Double]))
+      }
+
+      mockDummy.funcDouble(5.0)
+    }
+
+    "support any[Boolean] in having" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcBool(having(any[Boolean]))
+      }
+
+      mockDummy.funcBool(false)
+    }
+
+    "support any[Boolean] in having" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcBool(having(any[Boolean]))
+      }
+
+      mockDummy.funcBool(Boolean.box(true))
+    }
   }
 
   "JMock.Stubbed" >> {
@@ -213,6 +285,11 @@ trait Dummy {
   def func2() {}
   def func3(arg: String)
   def func3(arg: Boolean)
+  def funcBool(arg: Boolean)
   def func4(arg: Int)
+  def funcLong(arg: Long)
+  def funcShort(arg: Short)
+  def funcFloat(arg: Float)
+  def funcDouble(arg: Double)
   def increment: Int
 }

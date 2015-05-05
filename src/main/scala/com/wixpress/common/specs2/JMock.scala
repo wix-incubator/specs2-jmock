@@ -7,11 +7,12 @@ import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery, Sequence}
 import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
-import org.specs2.matcher.{Matcher, MustMatchers}
+import org.specs2.matcher.{MatchResult, Expectable, Matcher, MustMatchers}
 import org.specs2.mock.HamcrestMatcherAdapter
 import org.specs2.specification.AroundEach
 
 import scala.reflect.ClassTag
+import scala.reflect.internal.util.StringOps
 
 /*      __ __ _____  __                                              *\
 **     / // // /_/ |/ /          Wix                                 **
@@ -54,12 +55,44 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
   def then(state: State) = expectations.then(state)
   def set(state: State) = expectations.then(state)
   def when(predicate: StatePredicate) = expectations.when(predicate)
-  def any[T](implicit t: ClassTag[T]): Matcher[T] = beAnInstanceOf(t)
+
+  def any[T](implicit ct: ClassTag[T]): Matcher[T] = new Matcher[T] {
+    override def apply[S <: T](t: Expectable[S]): MatchResult[S] = {
+      val superClass = ct.runtimeClass
+      println("superClass = " + superClass)
+      val expectableClass = t.value.getClass
+      println("expectableClass = " + expectableClass)
+      val IntClass = classOf[Int]
+      val ShortClass = classOf[Short]
+      val LongClass = classOf[Long]
+      val FloatClass = classOf[Float]
+      val DoubleClass = classOf[Double]
+      val BooleanClass = classOf[Boolean]
+      val isMatching = superClass match {
+        case IntClass ⇒ IntClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Integer]
+        case DoubleClass ⇒ DoubleClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Double]
+        case ShortClass ⇒ ShortClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Short]
+        case FloatClass ⇒ FloatClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Float]
+        case LongClass ⇒ LongClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Long]
+        case BooleanClass ⇒ BooleanClass.isAssignableFrom(expectableClass) || t.value.isInstanceOf[java.lang.Boolean]
+        case _ ⇒ superClass.isAssignableFrom(expectableClass)
+      }
+
+      if (isMatching) {
+        success(s"is a ${ct.runtimeClass.getCanonicalName}", t)
+      }
+      else {
+        failure(s"is not a ${ct.runtimeClass.getCanonicalName}", t)
+      }
+    }
+  }
+  def anyString = beAssignableFrom[String]
+  def anyInt = beAssignableFrom[Int]
 
   def `with`[T](m: Matcher[T]): T = expectations.`with`(HamcrestMatcherAdapter(m))
   def `with`[T](value: T): T = expectations.`with`(value)
-  def having[T](m: Matcher[T]): T = expectations.`with`(HamcrestMatcherAdapter(m))
-  def having[T](value: T): T = expectations.`with`(value)
+  def having[T](m: Matcher[T]): T = `with`(m)
+  def having[T](value: T): T = `with`(value)
 
   def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
   def mock[T](name: String)(implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]], name)
@@ -82,7 +115,7 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
     }
 
     def willReturn[K <: T](t: K): Unit = will(returnValue(t))
-    
+
     def willThrow[K <: Throwable](t: K): Unit = will(throwException(t))
   }
 }
