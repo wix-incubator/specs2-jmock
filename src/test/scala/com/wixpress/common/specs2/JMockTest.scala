@@ -134,7 +134,7 @@ class JMockTest extends Specification with JMock {
 
       Executors.newSingleThreadExecutor().execute(toRunnable(mockDummy1.func1))
 
-      waitUntil(stateMachine.is("end"), 1)
+      waitUntil(stateMachine.is("end"), 1000)
     }
 
     "allow to expect an exception from a mock" in {
