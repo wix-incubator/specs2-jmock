@@ -116,11 +116,11 @@ class JMockTest extends Specification with JMock {
 
       checking {
         oneOf(mockDummy1).func1
-        oneOf(mockDummy2).func2
+        oneOf(mockDummy2).func2()
       }
 
       mockDummy1.func1
-      mockDummy2.func2
+      mockDummy2.func2()
     }
 
     "support waitUntil mechanism" in {
@@ -223,7 +223,7 @@ class JMockTest extends Specification with JMock {
         oneOf(mockDummy).funcBool(having(any[Boolean]))
       }
 
-      mockDummy.funcBool(false)
+      mockDummy.funcBool(arg = false)
     }
 
     "support any[Boolean] in having" in {
@@ -232,7 +232,38 @@ class JMockTest extends Specification with JMock {
         oneOf(mockDummy).funcBool(having(any[Boolean]))
       }
 
-      mockDummy.funcBool(Boolean.box(true))
+      mockDummy.funcBool(Boolean.box(x = true))
+    }
+
+    "support Set[String] as return type in mocked object" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).getSet
+      }
+
+      mockDummy.getSet
+    }
+
+    "support Map[String, Int] as return type in mocked object" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        exactly(1).of(mockDummy).getMap
+      }
+
+      mockDummy.getMap
+    }
+
+    "support immutable Map[String, Int] as return type in mocked object" in {
+      val mockDummy = mock[Dummy]
+      checking {
+        exactly(1).of(mockDummy).getMap
+      }
+
+      mockDummy.getMap
+    }
+
+    "Throw an error if trying to mock a class without using class imposteriser" in {
+      mock[DummyClass] must throwAn[IllegalArgumentException](message = "com.wixpress.common.specs2.DummyClass is not an interface")
     }
   }
 
@@ -292,4 +323,12 @@ trait Dummy {
   def funcFloat(arg: Float)
   def funcDouble(arg: Double)
   def increment: Int
+  def getSet: Set[String]
+  def getMap: Map[String, Int]
+  def getImmutableMap: collection.immutable.Map[String, Int]
+  def get
+}
+
+class DummyClass{
+  def foo = "bar"
 }

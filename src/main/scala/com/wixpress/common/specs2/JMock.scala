@@ -3,16 +3,15 @@ package com.wixpress.common.specs2
 import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
-import org.jmock.lib.legacy.ClassImposteriser
 import org.jmock.{Expectations, Mockery, Sequence}
 import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
-import org.specs2.matcher.{MatchResult, Expectable, Matcher, MustMatchers}
+import org.specs2.matcher.{Expectable, MatchResult, Matcher, MustMatchers}
 import org.specs2.mock.HamcrestMatcherAdapter
 import org.specs2.specification.AroundEach
 
 import scala.reflect.ClassTag
-import scala.reflect.internal.util.StringOps
+import scala.util.Try
 
 /*      __ __ _____  __                                              *\
 **     / // // /_/ |/ /          Wix                                 **
@@ -36,9 +35,16 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
     def asResult(a: =>A) =
       ResultExecution.effectively { a; Success() }
   }
+  private val delagatingImposteriser = new DelegatingImposteriser(this)
+  context.setImposteriser(delagatingImposteriser)
 
-  def useClassImposterizer() = context.setImposteriser(ClassImposteriser.INSTANCE)
-
+  var usingJavaReflectionImposteriser = true
+  def useClassImposterizer() = {
+    usingJavaReflectionImposteriser = false
+  }
+  def useJavaReflectionImposterizer() = {
+    usingJavaReflectionImposteriser = true
+  }
 
   def allowing[T](t: T): T = expectations.allowing(t)
   def never[T](t: T): T = expectations.never(t)
@@ -85,16 +91,26 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
       }
     }
   }
-  def anyString = beAssignableFrom[String]
-  def anyInt = beAssignableFrom[Int]
 
   def `with`[T](m: Matcher[T]): T = expectations.`with`(HamcrestMatcherAdapter(m))
   def `with`[T](value: T): T = expectations.`with`(value)
   def having[T](m: Matcher[T]): T = `with`(m)
   def having[T](value: T): T = `with`(value)
 
-  def mock[T](implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]])
-  def mock[T](name: String)(implicit ct: ClassTag[T]): T = context.mock(ct.runtimeClass.asInstanceOf[Class[T]], name)
+  private def mockWithFallback[T](mock: ⇒T)(implicit ct: ClassTag[T]): T = {
+    Try(mock).recover({
+      case e: IllegalArgumentException if usingJavaReflectionImposteriser && !ct.runtimeClass.isInterface ⇒ throw e
+      case _: Exception if usingJavaReflectionImposteriser ⇒ {
+        useClassImposterizer()
+        val secondTry = Try(mock)
+        useJavaReflectionImposterizer()
+        secondTry.get
+      }
+      case e: Exception ⇒ e.printStackTrace(); throw e
+    }).get
+  }
+  def mock[T](implicit ct: ClassTag[T]): T = mockWithFallback(context.mock(ct.runtimeClass.asInstanceOf[Class[T]]))
+  def mock[T](name: String)(implicit ct: ClassTag[T]): T = mockWithFallback(context.mock(ct.runtimeClass.asInstanceOf[Class[T]], name))
 
   def states(name: String) = context.states(name)
 
@@ -118,3 +134,4 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
     def willThrow[K <: Throwable](t: K): Unit = will(throwException(t))
   }
 }
+
