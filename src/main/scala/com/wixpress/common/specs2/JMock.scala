@@ -3,7 +3,7 @@ package com.wixpress.common.specs2
 import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
-import org.jmock.{Expectations, Mockery, Sequence}
+import org.jmock.{AbstractExpectations, Expectations, Mockery, Sequence}
 import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
 import org.specs2.matcher.{Expectable, MatchResult, Matcher, MustMatchers}
@@ -49,9 +49,9 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
   def allowing[T](t: T): T = expectations.allowing(t)
   def never[T](t: T): T = expectations.never(t)
   def will(action: Action) = expectations.will(action)
-  def onConsecutiveCalls(actions: Action*): Action = Expectations.onConsecutiveCalls(actions:_*)
-  def returnValue[T](t: T): Action = Expectations.returnValue(t)
-  def throwException(e:Throwable) : Action = Expectations.throwException(e)
+  def onConsecutiveCalls(actions: Action*): Action = AbstractExpectations.onConsecutiveCalls(actions:_*)
+  def returnValue[T](t: T): Action = AbstractExpectations.returnValue(t)
+  def throwException(e:Throwable) : Action = AbstractExpectations.throwException(e)
   def oneOf[T](t: T): T = expectations.oneOf(t)
   def checking(f: => Unit) = {f; context.checking(expectations)}
   def exactly(count: Int) = expectations.exactly(count)
@@ -126,7 +126,7 @@ trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with Ar
       if (consecutive.isEmpty)
         expectations.will(action)
       else
-        expectations.will(Expectations.onConsecutiveCalls((action +:consecutive):_*))
+        expectations.will(AbstractExpectations.onConsecutiveCalls((action +: consecutive): _*))
     }
 
     def willReturn[K <: T](t: K): Unit = will(returnValue(t))
