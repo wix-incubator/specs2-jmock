@@ -17,6 +17,9 @@ This is a specs2 adapter + DSL for using the popular mocking framework JMock
 ```sbt
 libraryDependencies += "com.wixpress" %% "specs2-jmock" % "x.y.z"
 ```
+
+* for latest version check [releases](https://github.com/wix/specs2-jmock/releases)
+
 #Usage
 Mixin the `JMock` trait to your Specification class, and use the DSL.
 
