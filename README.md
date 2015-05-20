@@ -22,6 +22,8 @@ Mixin the `JMock` trait to your Specification class, and use the DSL.
 
 #Example
 ```Scala
+import com.wixpress.common.specs2.JMock
+
 class JMockTest extends Specification with JMock  {
 
   "My JMock test" should { 
