@@ -1,6 +1,8 @@
 specs2-jmock [![Build Status](https://travis-ci.org/wix/specs2-jmock.svg?branch=master)](https://travis-ci.org/wix/specs2-jmock)
 ============
 
+[![Join the chat at https://gitter.im/wix/specs2-jmock](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/wix/specs2-jmock?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is a specs2 adapter + DSL for using the popular mocking framework JMock
 
 #Installation
