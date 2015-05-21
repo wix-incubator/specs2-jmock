@@ -6,7 +6,7 @@ import org.jmock.lib.legacy.ClassImposteriser
 
 import scala.util.Try
 
-class DelegatingImposteriser(jmock: JMock) extends Imposteriser {
+class DelegatingImposteriser(jmock: JMockDsl) extends Imposteriser {
 
   val reflectionImposteriser = JavaReflectionImposteriser.INSTANCE
   val classImposteriser = ClassImposteriser.INSTANCE

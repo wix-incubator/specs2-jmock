@@ -4,7 +4,7 @@ import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
 import org.jmock.{AbstractExpectations, Expectations, Mockery, Sequence}
-import org.specs2.execute.{AsResult, Result, ResultExecution, Success}
+import org.specs2.execute._
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
 import org.specs2.matcher.{Expectable, MatchResult, Matcher, MustMatchers}
 import org.specs2.mock.HamcrestMatcherAdapter
@@ -20,15 +20,25 @@ import scala.util.Try
 **   \__/|__/_//_/| |                                                **
 \*                |/                                                 */
 
-trait JMock extends MustMatchers with AroundEach with ArgumentsShortcuts with ArgumentsArgs {
+trait JMock extends JMockDsl with JMockAround
+
+trait JMockAround extends AroundEach { this: JMockDsl ⇒
+  protected def around[T : AsResult](t: =>T): Result = {
+    AsResult(t) and ResultExecution.execute(assertIsSatisfied)
+  }
+}
+
+trait JMockDsl extends MustMatchers with ArgumentsShortcuts with ArgumentsArgs {
   isolated
 
   private val synchroniser: Synchroniser = new Synchroniser
   private[this] val context:Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
   val expectations = new Expectations
 
-  protected def around[T : AsResult](t: =>T): Result = {
-    AsResult(t) and ResultExecution.execute{ context.assertIsSatisfied(); Success() }
+  protected def assertIsSatisfied[T: AsResult]: Result with Product with Serializable = {
+    Try(context.assertIsSatisfied()).map(_ ⇒ Success()).recover {
+      case t: Throwable ⇒ Error(t)
+    }.get
   }
 
   implicit def anyAsResult[A] : AsResult[A] = new AsResult[A]{
