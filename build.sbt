@@ -4,7 +4,7 @@ name := "specs2-jmock"
 
 description := "A specs2 JMock integration layer that provides a nice DSL, especially targeted at people used to JMock in Java and Junit."
 
-organization := "com.wixpress"
+organization := "com.wix"
 
 crossScalaVersions := Seq("2.10.5", "2.11.6")
 
