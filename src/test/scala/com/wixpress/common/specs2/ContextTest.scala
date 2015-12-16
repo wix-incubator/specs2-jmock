@@ -28,7 +28,7 @@ class ContextTest extends Specification with JMock{
       }
 
       new Bar(mockFoo)
-    }.pendingUntilFixed("See https://github.com/etorreborre/specs2/issues/366")
+    }
   }
 }
 

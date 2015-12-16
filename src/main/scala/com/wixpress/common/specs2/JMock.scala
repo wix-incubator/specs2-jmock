@@ -3,6 +3,7 @@ package com.wixpress.common.specs2
 import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
+import org.jmock.syntax.ReceiverClause
 import org.jmock.{AbstractExpectations, Expectations, Mockery, Sequence}
 import org.specs2.execute._
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
@@ -64,8 +65,9 @@ trait JMockDsl extends MustMatchers with ArgumentsShortcuts with ArgumentsArgs {
   def throwException(e:Throwable) : Action = AbstractExpectations.throwException(e)
   def oneOf[T](t: T): T = expectations.oneOf(t)
   def checking(f: => Unit) = {f; context.checking(expectations)}
-  def exactly(count: Int) = expectations.exactly(count)
-  def atLeast(count: Int) = expectations.atLeast(count)
+  def exactly(count: Int): ReceiverClause = expectations.exactly(count)
+  def atLeast(count: Int): ReceiverClause = expectations.atLeast(count)
+  def atMost(count: Int): ReceiverClause = expectations.atMost(count)
   def ignoring[T](mockObject: T) = expectations.ignoring(mockObject)
   @deprecated("then is now a deprecated identifier in scala, use set instead.")
   def then(state: State) = expectations.then(state)
@@ -136,7 +138,7 @@ trait JMockDsl extends MustMatchers with ArgumentsShortcuts with ArgumentsArgs {
       if (consecutive.isEmpty)
         expectations.will(action)
       else
-        expectations.will(AbstractExpectations.onConsecutiveCalls((action +: consecutive): _*))
+        expectations.will(AbstractExpectations.onConsecutiveCalls(action +: consecutive: _*))
     }
 
     def willReturn[K <: T](t: K): Unit = will(returnValue(t))
