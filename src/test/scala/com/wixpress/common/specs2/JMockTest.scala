@@ -5,6 +5,7 @@ import java.util.concurrent.Executors
 import org.jmock.States
 import org.specs2.matcher.BeEqualTo
 import org.specs2.mutable.Specification
+import org.specs2.specification.Scope
 
 import scala.language.implicitConversions
 
@@ -15,8 +16,10 @@ class JMockTest extends Specification with JMock {
     override def run(): Unit = func
   }
 
+  trait Context extends Scope
+
   "JMock trait" should {
-    "Provide usage of a checking block with jmock expectations in it" in {
+    "Provide usage of a checking block with jmock expectations in it" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         allowing(mockDummy).func1
@@ -28,7 +31,7 @@ class JMockTest extends Specification with JMock {
       result must be equalTo "foo"
     }
 
-    "accept specs2 matcher in with " in {
+    "accept specs2 matcher in with " in new Context  {
       val mockDummy = mock[Dummy]
       checking {
         val to: BeEqualTo = equalTo("it works")
@@ -37,7 +40,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("it works")
     }
 
-    "accept specs2 beNull matcher in with " in {
+    "accept specs2 beNull matcher in with " in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func3(`with`(beNull).asInstanceOf[String])
@@ -45,7 +48,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3(null)
     }
 
-    "accept specs2 matcher in having (alternative to `with`) " in {
+    "accept specs2 matcher in having (alternative to `with`) " in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func3(having[String](equalTo("it works")))
@@ -53,7 +56,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("it works")
     }
 
-    "accept the result of any in `with`" in {
+    "accept the result of any in `with`" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func3(`with`(any[String]))
@@ -61,7 +64,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("bla")
     }
 
-    "accept the result of any in having (alternative to `with`)" in {
+    "accept the result of any in having (alternative to `with`)" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func3(having(any[String]))
@@ -69,7 +72,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("bla")
     }
 
-    "accept a string in `with`" in {
+    "accept a string in `with`" in new Context {
       val mockDummy = mock[Dummy]
       checking(
         oneOf(mockDummy).func3(`with`("bla"))
@@ -77,7 +80,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("bla")
     }
 
-    "accept an Int in `with`" in {
+    "accept an Int in `with`" in new Context {
       val mockDummy = mock[Dummy]
       checking(
         oneOf(mockDummy).func4(`with`(5))
@@ -85,7 +88,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func4(5)
     }
 
-    "accept sequence directives" in {
+    "accept sequence directives" in new Context {
       val seq = sequence("mySequence")
       val mockDummy = mock[Dummy]
       checking {
@@ -96,7 +99,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func2()
     }
 
-    "accept onConsecutiveCalls in a will" in {
+    "accept onConsecutiveCalls in a will" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         atLeast(1).of(mockDummy).increment; will(onConsecutiveCalls(
@@ -110,7 +113,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.increment must beEqualTo(2)
     }
 
-    "accept creating two mocks of the same type different names" in {
+    "accept creating two mocks of the same type different names" in new Context {
       val mockDummy1 = mock[Dummy]("dummy1")
       val mockDummy2 = mock[Dummy]("dummy2")
 
@@ -123,7 +126,17 @@ class JMockTest extends Specification with JMock {
       mockDummy2.func2()
     }
 
-    "support waitUntil mechanism" in {
+    "support atMost" in new Context {
+      val mockDummy = mock[Dummy]
+      val dummyRepeater = new DummyRepeater(mockDummy)
+      checking {
+        atMost(2).of(mockDummy).func1
+      }
+
+      dummyRepeater.repeat
+    }
+
+    "support waitUntil mechanism" in new Context {
       val stateMachine: States = states("start")
       val mockDummy1 = mock[Dummy]
 
@@ -137,7 +150,7 @@ class JMockTest extends Specification with JMock {
       waitUntil(stateMachine.is("end"), 1000)
     }
 
-    "allow to expect an exception from a mock" in {
+    "allow to expect an exception from a mock" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         allowing(mockDummy).func1
@@ -147,14 +160,14 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 must throwA[NullPointerException]
     }
 
-    "support never expectation" in {
+    "support never expectation" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         never(mockDummy).func1
       }
     }
 
-    "have `any` return a matcher of the right class" in {
+    "have `any` return a matcher of the right class" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func3(having(any[String]))
@@ -163,7 +176,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func3("bla")
     }
 
-    "support any[Integer]" in {
+    "support any[Integer]" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func4(having(any[Int]))
@@ -172,7 +185,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func4(5)
     }
 
-    "support any[Integer]" in {
+    "support any[Integer]" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func4(having(any[Int]))
@@ -181,7 +194,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func4(Int.MaxValue)
     }
 
-    "support any[Long]" in {
+    "support any[Long]" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).funcLong(having(any[Long]))
@@ -190,7 +203,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.funcLong(5L)
     }
 
-    "support any[Short]" in {
+    "support any[Short]" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).funcShort(having(any[Short]))
@@ -199,7 +212,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.funcShort(5.toShort)
     }
 
-    "support any[Float]" in {
+    "support any[Float]" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).funcFloat(having(any[Float]))
@@ -208,7 +221,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.funcFloat(5.0f)
     }
 
-    "support any[Double]" in {
+    "support any[Double]" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).funcDouble(having(any[Double]))
@@ -217,7 +230,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.funcDouble(5.0)
     }
 
-    "support any[Boolean] in having" in {
+    "support any[Boolean] in having" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).funcBool(having(any[Boolean]))
@@ -226,7 +239,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.funcBool(arg = false)
     }
 
-    "support any[Boolean] in having" in {
+    "support any[Boolean] in having" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).funcBool(having(any[Boolean]))
@@ -235,7 +248,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.funcBool(Boolean.box(x = true))
     }
 
-    "support Set[String] as return type in mocked object" in {
+    "support Set[String] as return type in mocked object" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).getSet
@@ -244,7 +257,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.getSet
     }
 
-    "support Map[String, Int] as return type in mocked object" in {
+    "support Map[String, Int] as return type in mocked object" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         exactly(1).of(mockDummy).getMap
@@ -253,7 +266,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.getMap
     }
 
-    "support immutable Map[String, Int] as return type in mocked object" in {
+    "support immutable Map[String, Int] as return type in mocked object" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         exactly(1).of(mockDummy).getMap
@@ -262,13 +275,13 @@ class JMockTest extends Specification with JMock {
       mockDummy.getMap
     }
 
-    "Throw an error if trying to mock a class without using class imposteriser" in {
+    "Throw an error if trying to mock a class without using class imposteriser" in new Context {
       mock[DummyClass] must throwAn[IllegalArgumentException](message = "com.wixpress.common.specs2.DummyClass is not an interface")
     }
   }
 
   "JMock.Stubbed" >> {
-    "'willReturn' should work as will(returnValue)" in {
+    "'willReturn' should work as will(returnValue)" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func1 willReturn "some"
@@ -277,7 +290,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 mustEqual "some"
     }
 
-    "'willThrow' should work as will(throwException)" in {
+    "'willThrow' should work as will(throwException)" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func1 willThrow new RuntimeException
@@ -286,7 +299,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 must throwA[RuntimeException]
     }
 
-    "'will' with a single arg should act as JMock.will" in {
+    "'will' with a single arg should act as JMock.will" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         allowing(mockDummy).func1 will returnValue("some")
@@ -296,7 +309,7 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 mustEqual "some"
     }
 
-    "'will' with multiple args should act as JMock.will with onConsecutiveCalls" in {
+    "'will' with multiple args should act as JMock.will with onConsecutiveCalls" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         allowing(mockDummy).func1 will (
@@ -331,4 +344,8 @@ trait Dummy {
 
 class DummyClass{
   def foo = "bar"
+}
+
+class DummyRepeater(dummy: Dummy) {
+  def repeat: Unit = (1 to 2).foreach(_ ⇒ dummy.func1)
 }
