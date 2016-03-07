@@ -7,7 +7,7 @@ import org.jmock.syntax.ReceiverClause
 import org.jmock.{AbstractExpectations, Expectations, Mockery, Sequence}
 import org.specs2.execute._
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
-import org.specs2.matcher.{Expectable, MatchResult, Matcher, MustMatchers}
+import org.specs2.matcher._
 import org.specs2.mock.HamcrestMatcherAdapter
 import org.specs2.specification.AroundEach
 
@@ -29,7 +29,7 @@ trait JMockAround extends AroundEach { this: JMockDsl ⇒
   }
 }
 
-trait JMockDsl extends MustMatchers with ArgumentsShortcuts with ArgumentsArgs {
+trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with ArgumentsArgs {
   isolated
 
   private val synchroniser: Synchroniser = new Synchroniser
