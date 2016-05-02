@@ -51,3 +51,4 @@ You can see more examples in the [tests](/src/test/scala/com/wixpress/common/spe
 
 #License
 Use of this source code is governed by a BSD-style license which you can find [here](/LICENSE.md).
+
