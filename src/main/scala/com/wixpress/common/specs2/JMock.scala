@@ -1,13 +1,14 @@
 package com.wixpress.common.specs2
 
+import org.jmock.Expectations
 import org.jmock.api.Action
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.concurrent.Synchroniser
 import org.jmock.syntax.ReceiverClause
-import org.jmock.{AbstractExpectations, Expectations, Mockery, Sequence}
+import org.jmock._
 import org.specs2.execute._
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
-import org.specs2.matcher._
+import org.specs2.matcher.{Expectations ⇒ _ ,_}
 import org.specs2.mock.HamcrestMatcherAdapter
 import org.specs2.specification.AroundEach
 
@@ -144,6 +145,12 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
     def willReturn[K <: T](t: K): Unit = will(returnValue(t))
 
     def willThrow[K <: Throwable](t: K): Unit = will(throwException(t))
+
+    def willSet(state: State): Unit = set(state)
+  }
+
+  implicit class StatesOps(states: States) {
+    def to = states.is _
   }
 }
 

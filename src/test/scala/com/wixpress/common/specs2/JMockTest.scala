@@ -321,6 +321,17 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1 mustEqual "second"
     }
 
+    "willSetState should work act the same as setState" in new Context {
+      val mockDummy = mock[Dummy]
+      val state: States = states("state").startsAs("initial")
+      checking {
+        allowing(mockDummy).func1 willSet state.to("final")
+      }
+
+      mockDummy.func1
+
+      waitUntil(state.is("final"))
+    }
   }
 }
 
