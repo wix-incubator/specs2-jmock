@@ -65,6 +65,14 @@ class JMockTest extends Specification with JMock {
     }
 
     "accept the result of any in having (alternative to `with`)" in new Context {
+      val dummy = mock[Dummy]
+      checking {
+        oneOf(dummy).higherKinded(having(any[HigherKind[_]]))
+      }
+      dummy.higherKinded(new HigherKind("123"))
+    }
+
+    "accept the result of any of a higher-kind type, in having (alternative to `with`)" in new Context {
       val mockDummy = mock[Dummy]
       checking {
         oneOf(mockDummy).func3(having(any[String]))
@@ -133,7 +141,7 @@ class JMockTest extends Specification with JMock {
         atMost(2).of(mockDummy).func1
       }
 
-      dummyRepeater.repeat
+      dummyRepeater.repeat()
     }
 
     "support waitUntil mechanism" in new Context {
@@ -142,7 +150,7 @@ class JMockTest extends Specification with JMock {
 
       checking {
         oneOf(mockDummy1).func1
-        then(stateMachine.is("end"))
+        set(stateMachine.is("end"))
       }
 
       Executors.newSingleThreadExecutor().execute(toRunnable(mockDummy1.func1))
@@ -350,7 +358,8 @@ trait Dummy {
   def getSet: Set[String]
   def getMap: Map[String, Int]
   def getImmutableMap: collection.immutable.Map[String, Int]
-  def get
+  def get(): Unit
+  def higherKinded(arg: HigherKind[_])
 }
 
 class DummyClass{
@@ -358,5 +367,7 @@ class DummyClass{
 }
 
 class DummyRepeater(dummy: Dummy) {
-  def repeat: Unit = (1 to 2).foreach(_ ⇒ dummy.func1)
+  def repeat(): Unit = (1 to 2).foreach(_ ⇒ dummy.func1)
 }
+
+class HigherKind[T](kind: T)

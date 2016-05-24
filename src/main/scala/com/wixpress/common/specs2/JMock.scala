@@ -71,8 +71,8 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   def atMost(count: Int): ReceiverClause = expectations.atMost(count)
   def ignoring[T](mockObject: T) = expectations.ignoring(mockObject)
   @deprecated("then is now a deprecated identifier in scala, use set instead.")
-  def then(state: State) = expectations.then(state)
-  def set(state: State) = expectations.then(state)
+  def `then`(state: State) = expectations.`then`(state)
+  def set(state: State) = expectations.`then`(state)
   def when(predicate: StatePredicate) = expectations.when(predicate)
 
   def any[T](implicit ct: ClassTag[T]): Matcher[T] = new Matcher[T] {
@@ -106,19 +106,21 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   }
 
   def `with`[T](m: Matcher[T]): T = expectations.`with`(HamcrestMatcherAdapter(m))
-  def `with`[T](value: T): T = expectations.`with`(value)
+  def `with`[T](value: T)(implicit ct: ClassTag[T]): T = expectations.`with`(value)
   def having[T](m: Matcher[T]): T = `with`(m)
-  def having[T](value: T): T = `with`(value)
+  def having[T](value: T)(implicit ct: ClassTag[T]): T = `with`(value)
 
   private def mockWithFallback[T](mock: ⇒T)(implicit ct: ClassTag[T]): T = {
     Try(mock).recover({
-      case e: IllegalArgumentException if usingJavaReflectionImposteriser && !ct.runtimeClass.isInterface ⇒ throw e
-      case _: Exception if usingJavaReflectionImposteriser ⇒ {
+      case e: IllegalArgumentException if usingJavaReflectionImposteriser && !ct.runtimeClass.isInterface ⇒
+        throw e
+
+      case _: Exception if usingJavaReflectionImposteriser ⇒
         useClassImposterizer()
         val secondTry = Try(mock)
         useJavaReflectionImposterizer()
         secondTry.get
-      }
+
       case e: Exception ⇒ e.printStackTrace(); throw e
     }).get
   }
