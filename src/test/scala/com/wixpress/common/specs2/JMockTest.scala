@@ -8,6 +8,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
 import scala.language.implicitConversions
+import scala.util.{Success, Try}
 
 
 class JMockTest extends Specification with JMock {
@@ -286,6 +287,24 @@ class JMockTest extends Specification with JMock {
     "Throw an error if trying to mock a class without using class imposteriser" in new Context {
       mock[DummyClass] must throwAn[IllegalArgumentException](message = "com.wixpress.common.specs2.DummyClass is not an interface")
     }
+
+    "support any[Byte] in having" in new Context {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcByte(having(any[Byte]))
+      }
+
+      mockDummy.funcByte(arg = 1.toByte)
+    }
+
+    "support any[Char] in having" in new Context {
+      val mockDummy = mock[Dummy]
+      checking {
+        oneOf(mockDummy).funcChar(having(any[Char]))
+      }
+
+      mockDummy.funcChar(arg = 'c')
+    }
   }
 
   "JMock.Stubbed" >> {
@@ -354,6 +373,8 @@ trait Dummy {
   def funcShort(arg: Short)
   def funcFloat(arg: Float)
   def funcDouble(arg: Double)
+  def funcByte(arg: Byte)
+  def funcChar(arg: Char)
   def increment: Int
   def getSet: Set[String]
   def getMap: Map[String, Int]
@@ -362,7 +383,7 @@ trait Dummy {
   def higherKinded(arg: HigherKind[_])
 }
 
-class DummyClass{
+class DummyClass {
   def foo = "bar"
 }
 

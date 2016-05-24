@@ -82,17 +82,21 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
       val expectableClass = expectedValue.getClass
       val IntClass = classOf[Int]
       val ShortClass = classOf[Short]
+      val ByteClass = classOf[Byte]
       val LongClass = classOf[Long]
       val FloatClass = classOf[Float]
       val DoubleClass = classOf[Double]
       val BooleanClass = classOf[Boolean]
+      val CharClass = classOf[Char]
       val isMatching = superClass match {
         case IntClass ⇒ IntClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Integer]
+        case ByteClass ⇒ ByteClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Byte]
         case DoubleClass ⇒ DoubleClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Double]
         case ShortClass ⇒ ShortClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Short]
         case FloatClass ⇒ FloatClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Float]
         case LongClass ⇒ LongClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Long]
         case BooleanClass ⇒ BooleanClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Boolean]
+        case CharClass ⇒ CharClass.isAssignableFrom(expectableClass) || expectedValue.isInstanceOf[java.lang.Character]
         case _ ⇒ superClass.isAssignableFrom(expectableClass)
       }
 
