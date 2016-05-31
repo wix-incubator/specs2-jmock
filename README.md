@@ -1,4 +1,5 @@
-specs2-jmock [![Build Status](https://travis-ci.org/wix/specs2-jmock.svg?branch=master)](https://travis-ci.org/wix/specs2-jmock)
+specs2-jmock [![Build Status](https://travis-ci.org/wix/specs2-jmock.svg?branch=master)](https://travis-ci.org/wix/specs2-jmock) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.wix/specs2-jmock_2.11/badge.svg?style=flat)](http://mvnrepository.com/artifact/com.wix/specs2-jmock_2.11)
+
 ============
 
 [![Join the chat at https://gitter.im/wix/specs2-jmock](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/wix/specs2-jmock?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
