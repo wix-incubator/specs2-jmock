@@ -10,7 +10,7 @@ This is a specs2 adapter + DSL for using the popular mocking framework JMock
 ###Maven
 ```xml
 <dependency>
-    <groupId>com.wixpress</groupId>
+    <groupId>com.wix</groupId>
     <artifactId>specs2-jmock_${scala.version}</artifactId>
     <version>x.y.z</version>
     <scope>test</scope>
