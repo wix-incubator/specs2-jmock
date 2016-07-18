@@ -8,7 +8,6 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
 import scala.language.implicitConversions
-import scala.util.{Success, Try}
 
 
 class JMockTest extends Specification with JMock {
@@ -358,6 +357,19 @@ class JMockTest extends Specification with JMock {
       mockDummy.func1
 
       waitUntil(state.is("final"))
+    }
+
+    "allows declaring a mock that repeats a given set of actions" in new Context {
+      val mockDummy = mock[Dummy]
+
+      checking {
+        allowing(mockDummy).func1 will repeatedly(returnValue("1"),returnValue("2"))
+      }
+      mockDummy.func1 must beEqualTo("1")
+      mockDummy.func1 must beEqualTo("2")
+      mockDummy.func1 must beEqualTo("1")
+      mockDummy.func1 must beEqualTo("2")
+      // etc...
     }
   }
 }

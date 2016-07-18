@@ -1,8 +1,9 @@
 package com.wixpress.common.specs2
 
 import org.jmock.Expectations
-import org.jmock.api.Action
+import org.jmock.api.{Invocation, Action}
 import org.jmock.internal.{State, StatePredicate}
+import org.jmock.lib.action.CustomAction
 import org.jmock.lib.concurrent.Synchroniser
 import org.jmock.syntax.ReceiverClause
 import org.jmock._
@@ -138,6 +139,18 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
 
   def waitUntil(p : StatePredicate) = synchroniser.waitUntil(p)
   def waitUntil(p : StatePredicate, timeoutMs : Long) = synchroniser.waitUntil(p,timeoutMs)
+
+  def repeatedly(actions:Action*): Action = {
+    new CustomAction("repeatedly") {
+      var iterator = actions.iterator
+      override def invoke(invocation: Invocation): AnyRef = {
+        if (!iterator.hasNext)
+          iterator = actions.iterator
+        iterator.next().invoke(invocation)
+      }
+    }
+  }
+
 
   implicit class Stubbed [T](c: T) {
 
