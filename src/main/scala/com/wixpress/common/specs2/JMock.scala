@@ -1,16 +1,16 @@
 package com.wixpress.common.specs2
 
-import org.jmock.Expectations
-import org.jmock.api.{Invocation, Action}
+import org.jmock.api.{Action, Invocation}
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.action.CustomAction
 import org.jmock.lib.concurrent.Synchroniser
 import org.jmock.syntax.ReceiverClause
-import org.jmock._
+import org.jmock.{Expectations, _}
 import org.specs2.execute._
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
-import org.specs2.matcher.{Expectations ⇒ _ ,_}
+import org.specs2.matcher.{Expectations ⇒ _, _}
 import org.specs2.mock.HamcrestMatcherAdapter
+import org.specs2.mutable.Specification
 import org.specs2.specification.AroundEach
 
 import scala.reflect.ClassTag
@@ -23,10 +23,13 @@ import scala.util.Try
 **   \__/|__/_//_/| |                                                **
 \*                |/                                                 */
 
-trait JMock extends JMockDsl with JMockAround
 
-trait JMockAround extends AroundEach { this: JMockDsl ⇒
-  protected def around[T : AsResult](t: =>T): Result = {
+trait JMock extends JMockDsl with JMockAroundEach {this: Specification ⇒ }
+
+trait JMockAroundEach extends AroundEach with AssertionCheckingAround with JMockDsl
+
+trait AssertionCheckingAround { this: JMockDsl ⇒
+  def around[T : AsResult](t: =>T): Result = {
     AsResult(t) and ResultExecution.execute(assertIsSatisfied)
   }
 }
@@ -35,7 +38,7 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   isolated
 
   private val synchroniser: Synchroniser = new Synchroniser
-  private[this] val context:Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
+  private[this] val context: Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
   val expectations = new Expectations
 
   protected def assertIsSatisfied[T: AsResult]: Result with Product with Serializable = {
@@ -172,4 +175,3 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
     def to = states.is _
   }
 }
-
