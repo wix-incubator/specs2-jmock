@@ -6,11 +6,9 @@ class ReusableExpectationsTest extends Specification {
 
   trait MyContext extends CollaboratorExpectations
 
-
-  // TODO find a way to use pending on a test or assert that test should fail.
-//  "Something should break" >> new MyContext {
-//    success
-//  }
+  "Something should break" >> new MyContext {
+    success
+  }.pendingUntilFixed("This test should fail")
 }
 
 trait CollaboratorExpectations extends scope.JMock {
