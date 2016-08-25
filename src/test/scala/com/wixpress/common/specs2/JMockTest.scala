@@ -22,8 +22,7 @@ class JMockTest extends Specification with JMock {
     "Provide usage of a checking block with jmock expectations in it" in new Context {
       val mockDummy = mock[Dummy]
       checking {
-        allowing(mockDummy).func1
-        will(returnValue("foo"))
+        allowing(mockDummy).func1.will(returnValue("foo"))
         oneOf(mockDummy).func2()
       }
       val result = mockDummy.func1
@@ -149,8 +148,7 @@ class JMockTest extends Specification with JMock {
       val mockDummy1 = mock[Dummy]
 
       checking {
-        oneOf(mockDummy1).func1
-        set(stateMachine.is("end"))
+        oneOf(mockDummy1).func1.willSet(stateMachine.to("end"))
       }
 
       Executors.newSingleThreadExecutor().execute(toRunnable(mockDummy1.func1))
