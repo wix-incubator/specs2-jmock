@@ -1,13 +1,10 @@
-specs2-jmock [![Build Status](https://travis-ci.org/wix/specs2-jmock.svg?branch=master)](https://travis-ci.org/wix/specs2-jmock) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.wix/specs2-jmock_2.11/badge.svg?style=flat)](http://mvnrepository.com/artifact/com.wix/specs2-jmock_2.11)
-
-============
-
-[![Join the chat at https://gitter.im/wix/specs2-jmock](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/wix/specs2-jmock?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# specs2-jmock 
+[![Build Status](https://travis-ci.org/wix/specs2-jmock.svg?branch=master)](https://travis-ci.org/wix/specs2-jmock) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.wix/specs2-jmock_2.11/badge.svg?style=flat)](http://mvnrepository.com/artifact/com.wix/specs2-jmock_2.11)
 
 This is a specs2 adapter + DSL for using the popular mocking framework JMock
 
-#Installation
-###Maven
+# Installation
+### Maven
 ```xml
 <dependency>
     <groupId>com.wix</groupId>
@@ -16,17 +13,17 @@ This is a specs2 adapter + DSL for using the popular mocking framework JMock
     <scope>test</scope>
 </dependency>
 ```
-###SBT
+### SBT
 ```sbt
-libraryDependencies += "com.wixpress" %% "specs2-jmock" % "x.y.z"
+libraryDependencies += "com.wix" %% "specs2-jmock" % "x.y.z"
 ```
 
 * for latest version check [releases](https://github.com/wix/specs2-jmock/releases)
 
-#Usage
+# Usage
 Mixin the `JMock` trait to your Specification class, and use the DSL.
 
-#Example
+# Example
 ```Scala
 import com.wixpress.common.specs2.JMock
 
@@ -50,6 +47,6 @@ class JMockTest extends Specification with JMock  {
 
 You can see more examples in the [tests](/src/test/scala/com/wixpress/common/specs2).
 
-#License
+# License
 Use of this source code is governed by a BSD-style license which you can find [here](/LICENSE.md).
 
