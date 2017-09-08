@@ -6,7 +6,7 @@ description := "A specs2 JMock integration layer that provides a nice DSL, espec
 
 organization := "com.wix"
 
-crossScalaVersions := Seq("2.11.11", "2.10.6")
+crossScalaVersions := Seq("2.12.3", "2.11.11", "2.10.6")
 
 scalaVersion := "2.11.11"
 
