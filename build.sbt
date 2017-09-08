@@ -6,9 +6,9 @@ description := "A specs2 JMock integration layer that provides a nice DSL, espec
 
 organization := "com.wix"
 
-crossScalaVersions := Seq("2.11.7", "2.10.5")
+crossScalaVersions := Seq("2.11.11", "2.10.6")
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.11"
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
