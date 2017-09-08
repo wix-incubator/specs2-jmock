@@ -54,9 +54,9 @@ pomExtra :=
 </scm>
 <developers>
   <developer>
-    <id>nimroda</id>
-    <name>Nimrod Argov</name>
-    <email>nimroda@wix.com</email>
+    <id>pijusn</id>
+    <name>Pijus Navickas</name>
+    <email>pijusn@wix.com</email>
     <organization>Wix</organization>
     <roles>
       <role>owner</role>
