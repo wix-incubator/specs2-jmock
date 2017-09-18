@@ -31,7 +31,12 @@ publishTo := {
     Some("Releases" at s"$sonatype/service/local/staging/deploy/maven2")
 }
 
-credentials += Credentials(Path.userHome / ".m2" / ".creds")
+credentials ++= (
+  for {
+    username <- sys.env.get("SONATYPE_USERNAME")
+    password <- sys.env.get("SONATYPE_PASSWORD")
+  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)
+).toSeq
 
 publishMavenStyle := true
 
