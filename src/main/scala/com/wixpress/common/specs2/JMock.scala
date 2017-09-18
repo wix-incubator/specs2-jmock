@@ -8,10 +8,11 @@ import org.jmock.syntax.ReceiverClause
 import org.jmock.{Expectations, _}
 import org.specs2.execute._
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
-import org.specs2.matcher.{Expectations ⇒ _, _}
+import org.specs2.matcher.{Expectations => _, _}
 import org.specs2.mock.HamcrestMatcherAdapter
 import org.specs2.mutable.Specification
 import org.specs2.specification.AroundEach
+import org.specs2.specification.core.SpecificationStructure
 
 import scala.reflect.ClassTag
 import scala.util.Try
@@ -24,7 +25,9 @@ import scala.util.Try
 \*                |/                                                 */
 
 
-trait JMock extends JMockDsl with JMockAroundEach {this: Specification ⇒ }
+trait JMock extends JMockDsl with JMockAroundEach {
+  this: SpecificationStructure =>
+}
 
 trait JMockAroundEach extends AroundEach with AssertionCheckingAround with JMockDsl
 

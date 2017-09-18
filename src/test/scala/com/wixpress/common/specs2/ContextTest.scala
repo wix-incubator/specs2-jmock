@@ -3,10 +3,8 @@ package com.wixpress.common.specs2
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
-class ContextTest extends Specification with JMock{
-
+class ContextTest extends Specification with JMock {
   sequential
-
 
   trait Context extends Scope {
     val mockFoo = mock[Foo]
