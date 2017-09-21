@@ -13,8 +13,8 @@ scalaVersion := "2.11.11"
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
 libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2-core" % "3.8.6",
-  "org.specs2" %% "specs2-mock" % "3.8.6",
+  "org.specs2" %% "specs2-core" % "3.9.5",
+  "org.specs2" %% "specs2-mock" % "3.9.5",
   "org.jmock" % "jmock-junit4" % "2.8.3",
   "org.jmock" % "jmock-legacy" % "2.8.3",
   "org.hamcrest" % "hamcrest-core" % "1.3",
