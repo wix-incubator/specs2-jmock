@@ -6,17 +6,15 @@ description := "A specs2 JMock integration layer that provides a nice DSL, espec
 
 organization := "com.wix"
 
-crossScalaVersions := Seq("2.12.3", "2.11.11", "2.10.6")
+crossScalaVersions := Seq("2.12.6", "2.11.11", "2.10.6")
 
-scalaVersion := "2.11.11"
-
-resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+scalaVersion := "2.12.6"
 
 libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2-core" % "3.8.6",
-  "org.specs2" %% "specs2-mock" % "3.8.6",
-  "org.jmock" % "jmock-junit4" % "2.8.3",
-  "org.jmock" % "jmock-legacy" % "2.8.3",
+  "org.specs2" %% "specs2-core" % "4.3.1",
+  "org.specs2" %% "specs2-mock" % "4.3.1",
+  "org.jmock" % "jmock-junit4" % "2.8.4",
+  "org.jmock" % "jmock-legacy" % "2.8.4",
   "org.hamcrest" % "hamcrest-core" % "1.3",
   "org.hamcrest" % "hamcrest-library" % "1.3"
 )
