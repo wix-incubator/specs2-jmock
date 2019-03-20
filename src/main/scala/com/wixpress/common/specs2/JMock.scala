@@ -158,7 +158,7 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   }
 
 
-  implicit class Stubbed [T](c: T) {
+  implicit class Stubbed[T](c: T) {
 
     def will(action: Action, consecutive: Action*): Unit = {
       if (consecutive.isEmpty)
@@ -177,4 +177,46 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   implicit class StatesOps(states: States) {
     def to = states.is _
   }
+
+  implicit class StubbedAnyRef[T <: AnyRef](c:T) {
+
+    private def msg = s"Answer for value ${c.getClass.getSimpleName}"
+
+    def willAnswer[I1, K <: T](function1: I1 => K): Unit =
+      will(new AnswerAction1(msg, function1))
+
+    def willAnswer[I1, I2, K <: T](function2: (I1, I2) => K): Unit =
+      will(new AnswerAction2(msg, function2))
+
+    def willAnswer[I1, I2, I3, K <: T](function3: (I1, I2, I3) => K): Unit =
+      will(new AnswerAction3(msg, function3))
+
+    def willAnswer[I1, I2, I3, I4, K <: T](function4: (I1, I2, I3, I4) => K): Unit =
+      will(new AnswerAction4(msg, function4))
+  }
+
+}
+
+
+abstract class AnswerAction(msg: String) extends CustomAction(msg) {
+  implicit class `Invocation with param`(invocation: Invocation) {
+    def apply[P](index: Int): P = invocation.getParameter(index).asInstanceOf[P]
+  }
+
+}
+
+class AnswerAction1[I1, K <: AnyRef](msg: String, f: I1 => K) extends AnswerAction(msg) {
+  override def invoke(invocation: Invocation): AnyRef = f(invocation(0))
+}
+
+class AnswerAction2[I1, I2, K <: AnyRef](msg: String, f: (I1, I2) => K) extends AnswerAction(msg) {
+  override def invoke(invocation: Invocation): AnyRef = f(invocation(0), invocation(1))
+}
+
+class AnswerAction3[I1, I2, I3, K <: AnyRef](msg: String, f: (I1, I2, I3) => K) extends AnswerAction(msg) {
+  override def invoke(invocation: Invocation): AnyRef = f(invocation(0), invocation(1), invocation(2))
+}
+
+class AnswerAction4[I1, I2, I3, I4, K <: AnyRef](msg: String, f: (I1, I2, I3, I4) => K) extends AnswerAction(msg) {
+  override def invoke(invocation: Invocation): AnyRef = f(invocation(0), invocation(1), invocation(2), invocation(3))
 }
