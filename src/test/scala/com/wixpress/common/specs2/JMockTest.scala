@@ -305,6 +305,7 @@ class JMockTest extends Specification with JMock {
   }
 
   "JMock.Stubbed" >> {
+
     "'willReturn' should work as will(returnValue)" in new Context {
       val mockDummy = mock[Dummy]
       checking {
@@ -370,6 +371,49 @@ class JMockTest extends Specification with JMock {
       // etc...
     }
   }
+
+
+  "Jmock will answer" should {
+
+    "'willAnswer' will run the method and return answer appropriately" in new Context {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).funcWithOneParameter(having(any[String])) willAnswer((_:String).toUpperCase)
+      }
+
+      mockDummy.funcWithOneParameter("hello") must be_===("HELLO")
+    }
+
+    "'willAnswer' will run the method and return answer appropriately with 2 parameters" in new Context {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).funcWithTwoParameters(having(any[String]), having(any[Int])) willAnswer((s:String, i:Int) => s+i)
+      }
+
+      mockDummy.funcWithTwoParameters("hello", 1) must be_===("hello1")
+    }
+
+    "'willAnswer' will run the method and return answer appropriately with 3 parameters" in new Context {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).funcWithThreeParameters(having(any[String]), having(any[Int]), having(any[Char])) willAnswer((s:String, i:Int, c: Char) => s+i+c)
+      }
+
+      mockDummy.funcWithThreeParameters("hello", 1, 'k') must be_===("hello1k")
+    }
+
+    "'willAnswer' will run the method and return answer appropriately with 4 parameters" in new Context {
+      val mockDummy = mock[Dummy]
+      checking {
+        allowing(mockDummy).funcWithFourParameters(having(any[String]), having(any[Int]), having(any[Char]), having(any[Double])) willAnswer((s:String, i:Int, c: Char, d:Double) => s+i+c+d)
+      }
+
+      mockDummy.funcWithFourParameters("hello", 1, 'k', 3.0) must be_===("hello1k3.0")
+    }
+
+
+  }
+
 }
 
 trait Dummy {
@@ -391,6 +435,11 @@ trait Dummy {
   def getImmutableMap: collection.immutable.Map[String, Int]
   def get(): Unit
   def higherKinded(arg: HigherKind[_])
+
+  def funcWithOneParameter(arg1: String): String
+  def funcWithTwoParameters(arg1: String, arg2: Int): String
+  def funcWithThreeParameters(arg1: String, arg2: Int, arg3: Char): String
+  def funcWithFourParameters(arg1: String, arg2: Int, arg3: Char, arg4: Double): String
 }
 
 class DummyClass {
