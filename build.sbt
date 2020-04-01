@@ -13,10 +13,10 @@ scalaVersion := "2.12.6"
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "4.3.1",
   "org.specs2" %% "specs2-mock" % "4.3.1",
-  "org.jmock" % "jmock-junit4" % "2.8.4",
-  "org.jmock" % "jmock-legacy" % "2.8.4",
-  "org.hamcrest" % "hamcrest-core" % "1.3",
-  "org.hamcrest" % "hamcrest-library" % "1.3"
+  "org.jmock" % "jmock" % "2.12.0",
+  "org.jmock" % "jmock-junit4" % "2.12.0",
+  "org.jmock" % "jmock-imposters" % "2.12.0",
+  "org.hamcrest" % "hamcrest" % "2.1"
 )
 
 scalacOptions in Test ++= Seq("-Yrangepos")
