@@ -1,15 +1,15 @@
 package com.wixpress.common.specs2
 
-import org.jmock.api.{Invokable, Imposteriser}
+import org.jmock.api.{Imposteriser, Invokable}
+import org.jmock.imposters.ByteBuddyClassImposteriser
 import org.jmock.lib.JavaReflectionImposteriser
-import org.jmock.lib.legacy.ClassImposteriser
 
 import scala.util.Try
 
 class DelegatingImposteriser(jmock: JMockDsl) extends Imposteriser {
 
   val reflectionImposteriser = JavaReflectionImposteriser.INSTANCE
-  val classImposteriser = ClassImposteriser.INSTANCE
+  val classImposteriser = ByteBuddyClassImposteriser.INSTANCE
 
   override def canImposterise(aClass: Class[_]): Boolean =
     if(jmock.usingJavaReflectionImposteriser) reflectionImposteriser.canImposterise(aClass) else classImposteriser.canImposterise(aClass)
