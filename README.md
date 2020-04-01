@@ -1,5 +1,5 @@
 # specs2-jmock 
-[![Build Status](https://travis-ci.org/wix/specs2-jmock.svg?branch=master)](https://travis-ci.org/wix/specs2-jmock) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.wix/specs2-jmock_2.11/badge.svg?style=flat)](http://mvnrepository.com/artifact/com.wix/specs2-jmock_2.11)
+[![Build Status](https://travis-ci.com/wix/specs2-jmock.svg?branch=master)](https://travis-ci.com/wix/specs2-jmock) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.wix/specs2-jmock_2.11/badge.svg?style=flat)](http://mvnrepository.com/artifact/com.wix/specs2-jmock_2.11)
 
 This is a specs2 adapter + DSL for using the popular mocking framework JMock
 
