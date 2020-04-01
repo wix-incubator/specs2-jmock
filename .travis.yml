@@ -2,7 +2,6 @@ language: scala
 jdk:
   - openjdk8
 scala:
-  - 2.10.5
   - 2.11.7
   - 2.12.10
 notifications:
