@@ -1,6 +1,6 @@
 package com.wixpress.common.specs2
 
-import org.jmock.api.{Action, Invocation}
+import org.jmock.api.{Action, Imposteriser, Invocation}
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.action.CustomAction
 import org.jmock.lib.concurrent.Synchroniser
@@ -54,8 +54,10 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
     def asResult(a: =>A) =
       ResultExecution.effectively { a; Success() }
   }
-  private val delagatingImposteriser = new DelegatingImposteriser(this)
-  context.setImposteriser(delagatingImposteriser)
+
+  def useImposteriser(imposteriser: Imposteriser): Unit = context.setImposteriser(imposteriser)
+
+  useImposteriser(new DelegatingImposteriser(this))
 
   var usingJavaReflectionImposteriser = true
   def useClassImposterizer() = {
