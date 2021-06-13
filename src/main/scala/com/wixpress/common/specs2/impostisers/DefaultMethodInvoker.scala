@@ -4,7 +4,7 @@ import java.lang.invoke.{MethodHandles, MethodType}
 import java.lang.reflect.{Constructor, Method}
 
 sealed trait DefaultMethodInvoker {
-  def invoke(proxy: AnyRef, method: Method, args: Array[AnyRef]): AnyRef
+  def invoke(impl: AnyRef, method: Method, args: Array[AnyRef]): AnyRef
 }
 
 /**
