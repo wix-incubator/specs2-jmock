@@ -1,5 +1,6 @@
 package com.wixpress.common.specs2
 
+import com.wixpress.common.specs2.DefaultArgsMode.{ArgsAreMatchers, ArgsAreValues}
 import org.jmock.api.{Action, Imposteriser, Invocation}
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.action.CustomAction
@@ -44,11 +45,17 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   private[this] val context: Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
   val expectations = new Expectations
 
+  private val defaultMethodArgsModeRef = new ThreadLocal[DefaultArgsMode] {
+    override def initialValue(): DefaultArgsMode = DefaultArgsMode.ArgsAreValues
+  }
+
   protected def assertIsSatisfied[T: AsResult]: Result with Product with Serializable = {
     Try(context.assertIsSatisfied()).map(_ ⇒ Success()).recover {
       case t: Throwable ⇒ Error(t)
     }.get
   }
+
+  private [specs2] def throwIfAssertUnsatisfied(): Unit = context.assertIsSatisfied()
 
   implicit def anyAsResult[A] : AsResult[A] = new AsResult[A]{
     def asResult(a: =>A) =
@@ -159,6 +166,14 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
     }
   }
 
+  def defaultArgsAreMatchers[T](t : => T): T = {
+    try {
+      defaultMethodArgsModeRef.set(ArgsAreMatchers)
+      t
+    } finally defaultMethodArgsModeRef.set(ArgsAreValues)
+  }
+
+  private [specs2] def areDefaultArgsMatchers = defaultMethodArgsModeRef.get == ArgsAreMatchers
 
   implicit class Stubbed[T](c: T) {
 
@@ -221,4 +236,10 @@ class AnswerAction3[I1, I2, I3, K <: AnyRef](msg: String, f: (I1, I2, I3) => K) 
 
 class AnswerAction4[I1, I2, I3, I4, K <: AnyRef](msg: String, f: (I1, I2, I3, I4) => K) extends AnswerAction(msg) {
   override def invoke(invocation: Invocation): AnyRef = f(invocation(0), invocation(1), invocation(2), invocation(3))
+}
+
+sealed trait DefaultArgsMode
+object DefaultArgsMode {
+  case object ArgsAreValues extends DefaultArgsMode
+  case object ArgsAreMatchers extends DefaultArgsMode
 }
