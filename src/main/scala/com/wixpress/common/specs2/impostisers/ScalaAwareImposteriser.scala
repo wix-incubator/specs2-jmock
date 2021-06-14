@@ -1,26 +1,35 @@
 package com.wixpress.common.specs2.impostisers
 
 import com.wixpress.common.specs2.JMockDsl
-import com.wixpress.common.specs2.impostisers.ScalaAwareImposteriser.defaultArgMethodPattern
-import org.jmock.api.{Imposteriser, Invokable}
+import org.jmock.api.{Imposteriser, Invocation, Invokable}
 
 import java.lang.reflect.Method
+import scala.util.Try
 
 class ScalaAwareImposteriser(delegate: Imposteriser, jmock: JMockDsl) extends Imposteriser {
   override def canImposterise(`type`: Class[_]): Boolean = delegate.canImposterise(`type`)
 
   override def imposterise[T](mockObject: Invokable, mockedType: Class[T], ancilliaryTypes: Class[_]*): T = {
-    val interceptor: Invokable = inv => {
-      if(ScalaAwareImposteriser.isDefaultArgMethod(inv.getInvokedMethod)) {
-        val value = DefaultMethodInvoker.instance.invoke(inv.getInvokedObject, inv.getInvokedMethod, inv.getParametersAsArray)
-        if(jmock.areDefaultArgsMatchers) {
-          jmock.having(value)
+    val interceptor: Invokable = new Invokable {
+      override def invoke(inv: Invocation): AnyRef = {
+        if(ScalaAwareImposteriser.isDefaultArgMethod(inv.getInvokedMethod)) {
+         tryInvokeDefaultArgMethod(inv, orElse = mockObject.invoke(inv))
         }
-        value
+        else mockObject.invoke(inv)
       }
-      else mockObject.invoke(inv)
     }
     delegate.imposterise(interceptor, mockedType, ancilliaryTypes:_*)
+  }
+
+  private def tryInvokeDefaultArgMethod[T](inv: Invocation,
+                                           orElse: => AnyRef) = {
+    try {
+      val value = SpecialMethodInvoker.invoke(inv.getInvokedObject, inv.getInvokedMethod, inv.getParametersAsArray)
+      if (jmock.areDefaultArgsMatchers) {
+        jmock.having(value)
+      }
+      value
+    } catch { case _: Throwable => orElse }
   }
 }
 
