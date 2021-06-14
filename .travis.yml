@@ -1,9 +1,9 @@
 language: scala
 jdk:
   - openjdk8
-  - openjdk11
+#  - openjdk11
 scala:
-  - 2.11.7
+  - 2.11.12
   - 2.12.10
 notifications:
   slack: wix:ZsGJpYZGQ8CjkNOY9ZqtEnaJ
