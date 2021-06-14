@@ -13,7 +13,11 @@ import java.lang.reflect.{Constructor, Method}
 object SpecialMethodInvoker extends SpecialMethodInvoker {
   private val java8ClassVersion = 52
   private val javaClassVersion = System.getProperty("java.class.version").toFloat
-  private val instance = if(javaClassVersion <= java8ClassVersion) java8Invoker else java9AndLaterInvoker
+  private val instance =
+    if(javaClassVersion <= java8ClassVersion) java8Invoker
+    // in some jdk11 implementations we get IllegalAccessException: "no private access for invokespecial"
+    // so we fallback to the java 8 method, which only warns of "An illegal reflective access operation has occurred"
+    else java9AndLaterInvoker orElse java8Invoker
 
   override def invoke(impl: AnyRef,
                       method: Method,
@@ -51,7 +55,19 @@ object SpecialMethodInvoker extends SpecialMethodInvoker {
   }
 }
 
-sealed trait SpecialMethodInvoker {
+sealed trait SpecialMethodInvoker { outer =>
   def invoke(impl: AnyRef, method: Method, args: Array[AnyRef]): AnyRef
+
+  def orElse(that: SpecialMethodInvoker) = new SpecialMethodInvoker {
+    override def invoke(impl: AnyRef,
+                        method: Method,
+                        args: Array[AnyRef]): AnyRef = {
+       try outer.invoke(impl, method, args)
+       catch {
+         case _: Throwable => that.invoke(impl, method, args)
+       }
+    }
+  }
 }
+
 

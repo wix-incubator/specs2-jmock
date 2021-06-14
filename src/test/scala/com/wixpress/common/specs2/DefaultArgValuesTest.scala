@@ -9,6 +9,7 @@ import scala.reflect.ClassTag
 
 //noinspection RedundantDefaultArgument
 class DefaultArgValuesTest extends Specification {
+  sequential
   val scalaVer = util.Properties.versionNumberString
 
   // the handling of default arg values only works for scala 2.12 (and higher?)
