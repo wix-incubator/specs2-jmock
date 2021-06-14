@@ -29,10 +29,7 @@ class ScalaAwareImposteriser(delegate: Imposteriser, jmock: JMockDsl) extends Im
         jmock.having(value)
       }
       value
-    } catch { case e: Throwable =>
-      new Throwable(s"invoke special failed for ${inv.getInvokedMethod}", e).printStackTrace()
-      orElse
-    }
+    } catch { case _: Throwable => orElse }
   }
 }
 

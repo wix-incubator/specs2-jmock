@@ -10,64 +10,61 @@ import scala.reflect.ClassTag
 //noinspection RedundantDefaultArgument
 class DefaultArgValuesTest extends Specification {
   sequential
-  val scalaVer = util.Properties.versionNumberString
+  val variants = Seq(Variant[ClassToMock](isClass = true)) ++
+    // the handling of default arg on traits only works for scala 2.12 (and higher?)
+    (if(scalaVersionAtLeast("2.12")) Seq( Variant[ToMock](isClass = false)) else Nil)
 
-  // the handling of default arg values only works for scala 2.12 (and higher?)
-  if(scalaVersionAtLeast("2.12")) {
-    Fragments.foreach(
-      Seq(
-        Variant[ToMock](isClass = false),
-        Variant[ClassToMock](isClass = true)
-      )) { test =>
-      s"when mocking a ${ test.what }" >> {
-        s"[${ test.what }] method expectation with non-default param - as value" in withJMock { jmock =>
-          import jmock.{Stubbed, allowing, checking}
-          val mocked = test.mock(jmock)
-          checking {
-            allowing(mocked).doSomething(3) willReturn 42
-          }
-          mocked.doSomething(3) must_=== 42
-          mocked.doSomething(3, "bar") must throwA[ExpectationError]("unexpected invocation")
+  Fragments.foreach(variants) { test =>
+    s"when mocking a ${ test.what }" >> {
+      s"[${ test.what }] method expectation with non-default param - as value" in withJMock { jmock =>
+        import jmock.{Stubbed, allowing, checking}
+        val mocked = test.mock(jmock)
+        checking {
+          allowing(mocked).doSomething(3) willReturn 42
         }
+        mocked.doSomething(3) must_=== 42
+        mocked.doSomething(3, "bar") must throwA[ExpectationError]("unexpected invocation")
+      }
 
-        s"[${ test.what }] method expectation with non default and default params - as values" in withJMock { jmock =>
-          import jmock.{Stubbed, allowing, checking}
-          val mocked = test.mock(jmock)
-          checking {
-            allowing(mocked).doSomething(3, "bar") willReturn 42
-          }
-          mocked.doSomething(3, "bar") must_=== 42
-          mocked.doSomething(3, "foo") must throwA[ExpectationError]("unexpected invocation")
+      s"[${ test.what }] method expectation with non default and default params - as values" in withJMock { jmock =>
+        import jmock.{Stubbed, allowing, checking}
+        val mocked = test.mock(jmock)
+        checking {
+          allowing(mocked).doSomething(3, "bar") willReturn 42
         }
+        mocked.doSomething(3, "bar") must_=== 42
+        mocked.doSomething(3, "foo") must throwA[ExpectationError]("unexpected invocation")
+      }
 
-        s"[${ test.what }] method expectation with non-default param - as matcher" in withJMock { jmock =>
+      s"[${ test.what }] method expectation with non-default param - as matcher" in withJMock { jmock =>
+        import jmock.{Stubbed, allowing, checking, defaultArgsAreMatchers, having}
+        val mocked = test.mock(jmock)
+        checking {
+          defaultArgsAreMatchers {
+            allowing(mocked).doSomething(having(beEqualTo(3))) willReturn 42
+          }
+        }
+        mocked.doSomething(3) must_=== 42
+        mocked.doSomething(3, b = false) must throwA[ExpectationError]("unexpected invocation")
+      }
+
+      s"[${ test.what }] method expectation with non-default and overridden params - as matchers" in
+        withJMock { jmock =>
           import jmock.{Stubbed, allowing, checking, defaultArgsAreMatchers, having}
           val mocked = test.mock(jmock)
           checking {
             defaultArgsAreMatchers {
-              allowing(mocked).doSomething(having(beEqualTo(3))) willReturn 42
+              allowing(mocked).doSomething(having(beEqualTo(3)), having(equalTo("bar"))) willReturn 42
             }
           }
-          mocked.doSomething(3) must_=== 42
-          mocked.doSomething(3, b = false) must throwA[ExpectationError]("unexpected invocation")
+          mocked.doSomething(3, "bar") must_=== 42
+          mocked.doSomething(3, "foo") must throwA[ExpectationError]("unexpected invocation")
         }
-
-        s"[${ test.what }] method expectation with non-default and overridden params - as matchers" in
-          withJMock { jmock =>
-            import jmock.{Stubbed, allowing, checking, defaultArgsAreMatchers, having}
-            val mocked = test.mock(jmock)
-            checking {
-              defaultArgsAreMatchers {
-                allowing(mocked).doSomething(having(beEqualTo(3)), having(equalTo("bar"))) willReturn 42
-              }
-            }
-            mocked.doSomething(3, "bar") must_=== 42
-            mocked.doSomething(3, "foo") must throwA[ExpectationError]("unexpected invocation")
-          }
-      }
     }
-  } else {
-    "[Scala Ver < 2.12] fails will unexpected invocation" in withJMock { jmock =>
+  }
+
+  if(!scalaVersionAtLeast("2.12")) {
+    "[Scala Ver < 2.12] When mocking a trait - fails will unexpected invocation" in withJMock { jmock =>
       import jmock.{Stubbed, allowing, checking, mock}
       val mocked = mock[ToMock]
       checking {
