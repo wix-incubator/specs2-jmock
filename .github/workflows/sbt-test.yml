@@ -24,4 +24,4 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - name: Run tests
-      sbt ++${{ matrix.scala }}! test
+      run: sbt ++${{ matrix.scala }}! test
