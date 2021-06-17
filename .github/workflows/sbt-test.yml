@@ -23,5 +23,7 @@ jobs:
       uses: olafurpg/setup-scala@v10
       with:
         java-version: ${{ matrix.java }}
+    - name: Cache scala dependencies
+      uses: coursier/cache-action@v6
     - name: Run tests
-      run: sbt ++${{ matrix.scala }}! test
+      run: sbt ++${{ matrix.scala }} test
