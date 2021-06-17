@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         java: [ 'adopt@1.8', 'adopt@1.11' ]
-        scala: [ '2.12.10', '2.11.11' ]
+        scala: [ '2.12.10', '2.11.12' ]
 
     steps:
     - uses: actions/checkout@v2
