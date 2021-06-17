@@ -1,14 +1,13 @@
 package com.wixpress.common.specs2
 
 import org.jmock.api.ExpectationError
-import org.specs2.execute.AsResult
 import org.specs2.mutable.Specification
 import org.specs2.specification.core.Fragments
 
 import scala.reflect.ClassTag
 
 //noinspection RedundantDefaultArgument
-class DefaultArgValuesTest extends Specification {
+class DefaultArgValuesTest extends Specification with JMockTestSupport {
   sequential
   val variants = Seq(Variant[ClassToMock](isClass = true)) ++
     // the handling of default arg on traits only works for scala 2.12 (and higher?)
@@ -37,12 +36,10 @@ class DefaultArgValuesTest extends Specification {
       }
 
       s"[${ test.what }] method expectation with non-default param - as matcher" in withJMock { jmock =>
-        import jmock.{Stubbed, allowing, checking, defaultArgsAreMatchers, having}
+        import jmock.{Stubbed, allowing, checking, expect, having}
         val mocked = test.mock(jmock)
         checking {
-          defaultArgsAreMatchers {
-            allowing(mocked).doSomething(having(beEqualTo(3))) willReturn 42
-          }
+           expect.allowing(mocked)(_.doSomething(having(beEqualTo(3)))) willReturn 42
         }
         mocked.doSomething(3) must_=== 42
         mocked.doSomething(3, b = false) must throwA[ExpectationError]("unexpected invocation")
@@ -50,15 +47,14 @@ class DefaultArgValuesTest extends Specification {
 
       s"[${ test.what }] method expectation with non-default and overridden params - as matchers" in
         withJMock { jmock =>
-          import jmock.{Stubbed, allowing, checking, defaultArgsAreMatchers, having}
+          import jmock.{Stubbed, checking, expect, having}
           val mocked = test.mock(jmock)
           checking {
-            defaultArgsAreMatchers {
-              allowing(mocked).doSomething(having(beEqualTo(3)), having(equalTo("bar"))) willReturn 42
-            }
+            expect.allowing(mocked)(_.doSomething(having(beEqualTo(3)), b = false)) willReturn 42
           }
-          mocked.doSomething(3, "bar") must_=== 42
+          mocked.doSomething(3, "foo", b = false) must_=== 42
           mocked.doSomething(3, "foo") must throwA[ExpectationError]("unexpected invocation")
+          mocked.doSomething(3, "bar", b = false) must throwA[ExpectationError]("unexpected invocation")
         }
     }
   }
@@ -74,26 +70,6 @@ class DefaultArgValuesTest extends Specification {
     }
   }
 
-  def withJMock[R: AsResult](f: JMockDsl => R): R = {
-    val jmock = new JMockDsl {
-      var successful: Boolean = false
-    }
-    try {
-      val res = f(jmock)
-      jmock.successful = implicitly[AsResult[R]].asResult(res).isSuccess
-      res
-    }
-    finally {
-      if(!jmock.successful) {
-        try
-          jmock.throwIfAssertUnsatisfied()
-        catch {
-          case e: Throwable => e.printStackTrace()
-        }
-      }
-    }
-  }
-
   case class Variant[T <: ToMock](isClass: Boolean)(implicit val classTag: ClassTag[T]) {
     def what = if(isClass) "class" else "trait"
     def mock(jmock: JMockDsl): ToMock = {
@@ -102,12 +78,6 @@ class DefaultArgValuesTest extends Specification {
       }
       jmock.mock[T](classTag)
     }
-  }
-
-  def scalaVersionAtLeast(ver: String) = {
-    val scalaVer = util.Properties.versionNumberString
-    def majorVersionDecimal(fullVer: String) = BigDecimal(fullVer.split('.').take(2).mkString("."))
-    majorVersionDecimal(scalaVer) >= majorVersionDecimal(ver)
   }
 }
 

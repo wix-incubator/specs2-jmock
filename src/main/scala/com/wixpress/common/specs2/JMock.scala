@@ -1,6 +1,5 @@
 package com.wixpress.common.specs2
 
-import com.wixpress.common.specs2.DefaultArgsMode.{ArgsAreMatchers, ArgsAreValues}
 import org.jmock.api.{Action, Imposteriser, Invocation}
 import org.jmock.internal.{State, StatePredicate}
 import org.jmock.lib.action.CustomAction
@@ -11,9 +10,9 @@ import org.specs2.execute._
 import org.specs2.main.{ArgumentsArgs, ArgumentsShortcuts}
 import org.specs2.matcher.{Expectations => _, _}
 import org.specs2.mock.HamcrestMatcherAdapter
-import org.specs2.mutable.Specification
 import org.specs2.specification.AroundEach
 import org.specs2.specification.core.SpecificationStructure
+import scala.language.experimental.macros
 
 import scala.reflect.ClassTag
 import scala.util.Try
@@ -38,16 +37,12 @@ trait AssertionCheckingAround { this: JMockDsl ⇒
   }
 }
 
-trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with ArgumentsArgs {
+trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with ArgumentsArgs { outer =>
   isolated
 
   private val synchroniser: Synchroniser = new Synchroniser
   private[this] val context: Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
   val expectations = new Expectations
-
-  private val defaultMethodArgsModeRef = new ThreadLocal[DefaultArgsMode] {
-    override def initialValue(): DefaultArgsMode = DefaultArgsMode.ArgsAreValues
-  }
 
   protected def assertIsSatisfied[T: AsResult]: Result with Product with Serializable = {
     Try(context.assertIsSatisfied()).map(_ ⇒ Success()).recover {
@@ -90,6 +85,17 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   def `then`(state: State) = expectations.`then`(state)
   def set(state: State) = expectations.`then`(state)
   def when(predicate: StatePredicate) = expectations.when(predicate)
+
+  object expect {
+    val jmockDsl: JMockDsl = outer
+    def allowing[T, R](mock: T)(expr: T => R): R = macro Macros.allowingImpl
+    def never[T, R](mock: T)(expr: T => R): R = macro Macros.neverImpl
+    def ignoring[T, R](mock: T)(expr: T => R): R = macro Macros.ignoringImpl
+    def oneOf[T, R](mock: T)(expr: T => R): R = macro Macros.oneOfImpl
+    def atLeast[T, R](n: Int)(mock: T)(expr: T => R): R = macro Macros.atLeastImpl
+    def atMost[T, R](n: Int)(mock: T)(expr: T => R): R = macro Macros.atMostImpl
+    def exactly[T, R](n: Int)(mock: T)(expr: T => R): R = macro Macros.exactlyImpl
+  }
 
   def any[T](implicit ct: ClassTag[T]): Matcher[T] = new Matcher[T] {
     override def apply[S <: T](t: Expectable[S]): MatchResult[S] = {
@@ -166,15 +172,6 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
     }
   }
 
-  def defaultArgsAreMatchers[T](t : => T): T = {
-    try {
-      defaultMethodArgsModeRef.set(ArgsAreMatchers)
-      t
-    } finally defaultMethodArgsModeRef.set(ArgsAreValues)
-  }
-
-  private [specs2] def areDefaultArgsMatchers = defaultMethodArgsModeRef.get == ArgsAreMatchers
-
   implicit class Stubbed[T](c: T) {
 
     def will(action: Action, consecutive: Action*): Unit = {
@@ -211,9 +208,7 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
     def willAnswer[I1, I2, I3, I4, K <: T](function4: (I1, I2, I3, I4) => K): Unit =
       will(new AnswerAction4(msg, function4))
   }
-
 }
-
 
 abstract class AnswerAction(msg: String) extends CustomAction(msg) {
   implicit class `Invocation with param`(invocation: Invocation) {
@@ -242,4 +237,144 @@ sealed trait DefaultArgsMode
 object DefaultArgsMode {
   case object ArgsAreValues extends DefaultArgsMode
   case object ArgsAreMatchers extends DefaultArgsMode
+}
+
+object Macros {
+  import scala.reflect.macros.blackbox
+
+  def allowingImpl(c: blackbox.Context)(mock: c.Tree)(expr: c.Tree): c.Tree = {
+    import c.universe._
+    expectation(c)(mock, expr, q"${c.prefix}.jmockDsl.allowing($mock)")
+  }
+
+  def neverImpl(c: blackbox.Context)(mock: c.Tree)(expr: c.Tree): c.Tree = {
+    import c.universe._
+    expectation(c)(mock, expr, q"${c.prefix}.jmockDsl.never($mock)")
+  }
+
+  def ignoringImpl(c: blackbox.Context)(mock: c.Tree)(expr: c.Tree): c.Tree = {
+    import c.universe._
+    expectation(c)(mock, expr, q"${c.prefix}.jmockDsl.ignoring($mock)")
+  }
+
+  def oneOfImpl(c: blackbox.Context)(mock: c.Tree)(expr: c.Tree): c.Tree = {
+    import c.universe._
+    expectation(c)(mock, expr, q"${c.prefix}.jmockDsl.oneOf($mock)")
+  }
+
+  def atLeastImpl(c: blackbox.Context)(n: c.Tree)(mock: c.Tree)(expr: c.Tree): c.Tree = {
+    import c.universe._
+    expectation(c)(mock, expr, q"${c.prefix}.jmockDsl.atLeast($n).of($mock)")
+  }
+
+  def atMostImpl(c: blackbox.Context)(n: c.Tree)(mock: c.Tree)(expr: c.Tree): c.Tree = {
+    import c.universe._
+    expectation(c)(mock, expr, q"${c.prefix}.jmockDsl.atMost($n).of($mock)")
+  }
+
+  def exactlyImpl(c: blackbox.Context)(n: c.Tree)(mock: c.Tree)(expr: c.Tree): c.Tree = {
+    import c.universe._
+    expectation(c)(mock, expr, q"${c.prefix}.jmockDsl.exactly($n).of($mock)")
+  }
+
+  private def expectation(c: blackbox.Context)(mock: c.Tree, expr: c.Tree, start:  c.Tree): c.Tree = {
+    import c.universe._
+    implicit val cc = c
+//    println(s"expr  raw: ${showRaw(expr)}")
+//    println(s"expr code: ${showCode(expr)}")
+    def abortInvalidLambda(code: String) = c.abort(c.enclosingPosition, s"[$code] expected lambda of form `_.mockMethod(having(...), having(...))`, received: ${showCode(expr)}")
+    expr match {
+      // a simple call with arguments in order
+      case Function(
+              ValDef(_, TermName(lambdaParam), _, _) :: _, MethodInvocation(receiver, method, methodParams)
+           ) if lambdaParam == receiver  =>
+        generate(c)(start, receiver, method, methodParams.map(_.map(_.asInstanceOf[c.Tree])))
+      // a call with named args out of order
+      case Function(
+          ValDef(_, TermName(lambdaParam), _, _) :: _,
+          Block(statements, Apply(Select(Ident(TermName(receiver)), TermName(method)), methodParams))
+         ) if statements.size == methodParams.size &&  lambdaParam == receiver =>
+
+        val paramMap = statements.collect {
+          case ValDef(_, name, _, p) => name -> p
+        }.toMap
+        if(paramMap.size != statements.size) {
+          abortInvalidLambda("vals-count")
+        }
+        val args = methodParams.collect { case Ident(t: TermName) => paramMap.get(t).toSeq }.flatten
+        if(args.size != methodParams.size) {
+          abortInvalidLambda(s"params-count ${args.size} != ${methodParams.size}")
+        }
+        generate(c)(start, receiver, method, Some(args))
+
+      case _ => abortInvalidLambda("no-match")
+    }
+  }
+
+  private object MethodInvocation {
+    def unapply[CTX <: blackbox.Context](tree: CTX#Tree)(implicit c: CTX): Option[(String, String, Option[List[c.Tree]])] = {
+      import c.universe._
+      tree match {
+        case  Apply(Select(Ident(TermName(receiver)), TermName(method)), methodParams) => Some(receiver, method, Some(methodParams))
+        case  Select(Ident(TermName(receiver)), TermName(method)) => Some(receiver, method, None)
+        case _ => None
+      }
+    }
+
+    def apply(c: blackbox.Context)(receiver: String, method: String, params: Option[List[c.Tree]]) = {
+      import c.universe._
+      val select = Select(Ident(TermName(receiver)), TermName(method))
+      params.fold(select: c.Tree)(ps => Apply(select, ps))
+    }
+  }
+
+  private def generate[CTX <: blackbox.Context](c: CTX)
+                      (start: c.Tree,
+                       receiver: String,
+                       method: String,
+                       methodParams: Option[List[c.Tree]]) = {
+    import c.universe._
+    val capturingVal = "capturing$val"
+    val hasMatcherParams = methodParams.toList.flatten.exists(paramIsAMatcher(c))
+    val processedParams = methodParams.map(_.map(processParam(c)(_, receiver, capturingVal, hasMatcherParams)))
+    val result =
+      q"""{
+              val ${ TermName(capturingVal) } = $start
+              ..${ processedParams.toList.flatten.zipWithIndex.map { case (p, i) => q"val ${ TermName(s"pp$$$i") } = $p"}}
+              ${ MethodInvocation(c)(capturingVal, method, methodParams.map(_.indices.toList.map(i => Ident(TermName(s"pp$$$i"))))) }
+           }"""
+//    println(s"generated: ${ showCode(result) }")
+    result
+  }
+
+  /**
+   * Convert code like `x$1.doSomething$default$2` to `capturing$val.doSomething$default$2` as `$x$1` is not available inside the generated code.
+   * Wraps non matcher values in `having(beEqualTo(..))` if `hasMatcherParams` is true
+   */
+  private def processParam[CTX <: blackbox.Context](c: CTX)(p: c.Tree, receiver: String, newReceiver: String, hasMatcherParams: Boolean) = {
+    import c.universe._
+    if(paramIsAMatcher(c)(p)) p
+    else {
+      val handledDefault = p match {
+        case Select(Ident(TermName(`receiver`)), TermName(methodName)) => Select(Ident(TermName(newReceiver)), TermName(methodName))
+        case _ => p
+      }
+      if(hasMatcherParams) {
+        val pType = c.Expr[Any](c.typecheck(p)).actualType.widen // have to widen otherwise we get types like Boolean(false)
+        q"${c.prefix}.jmockDsl.having[$pType](org.specs2.matcher.Matchers.beEqualTo[$pType]($handledDefault))"
+      } else handledDefault
+    }
+  }
+
+  private def paramIsAMatcher[CTX <: blackbox.Context](c: CTX)(p: c.Tree) = {
+    import c.universe._
+    p match {
+      case Apply(TypeApply(Select(context, TermName(method)), _), _) if havingMethodNames(method) =>
+        val calledOnType = c.Expr[Any](c.typecheck(context)).actualType
+        calledOnType.baseType(c.symbolOf[JMockDsl]) == typeOf[JMockDsl]
+      case _ => false
+    }
+  }
+
+  private val havingMethodNames = Set("having", "with")
 }
