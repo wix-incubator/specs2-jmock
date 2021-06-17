@@ -36,8 +36,8 @@ class ScalaAwareImposteriser(delegate: Imposteriser, jmock: JMockDsl) extends Im
 
   private def withModifiedParams(that: Invocation, newParams: Array[AnyRef]) = {
     val mode = if (that.isBuildingExpectation) Invocation.ExpectationMode.BUILDING
-    else Invocation.ExpectationMode.ASSERTING
-    new Invocation(mode, that.getInvokedObject, that.getInvokedMethod, newParams)
+               else Invocation.ExpectationMode.ASSERTING
+    new Invocation(mode, that.getInvokedObject, that.getInvokedMethod, newParams:_ *)
   }
 
   private def tryInvokeDefaultArgMethod[T](inv: Invocation,

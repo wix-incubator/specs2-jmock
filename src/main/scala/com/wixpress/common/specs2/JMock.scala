@@ -335,8 +335,9 @@ object Macros {
                        methodParams: Option[List[c.Tree]]) = {
     import c.universe._
     val capturingVal = "capturing$val"
-    val hasMatcherParams = methodParams.toList.flatten.exists(paramIsAMatcher(c))
-    val processedParams = methodParams.map(_.map(processParam(c)(_, receiver, capturingVal, hasMatcherParams)))
+    // if one of the parameters is a matcher this will be the prefix of the `.having` method
+    val firstMatcherContext = methodParams.toList.flatten.flatMap(p => matcherParamContext(c)(p)).headOption
+    val processedParams = methodParams.map(_.map(processParam(c)(_, receiver, capturingVal, firstMatcherContext)))
     val result =
       q"""{
               val ${ TermName(capturingVal) } = $start
@@ -351,28 +352,29 @@ object Macros {
    * Convert code like `x$1.doSomething$default$2` to `capturing$val.doSomething$default$2` as `$x$1` is not available inside the generated code.
    * Wraps non matcher values in `having(beEqualTo(..))` if `hasMatcherParams` is true
    */
-  private def processParam[CTX <: blackbox.Context](c: CTX)(p: c.Tree, receiver: String, newReceiver: String, hasMatcherParams: Boolean) = {
+  private def processParam[CTX <: blackbox.Context](c: CTX)(p: c.Tree, receiver: String, newReceiver: String, matcherContext: Option[c.Tree]) = {
     import c.universe._
-    if(paramIsAMatcher(c)(p)) p
+    if(matcherParamContext(c)(p).isDefined) p
     else {
       val handledDefault = p match {
         case Select(Ident(TermName(`receiver`)), TermName(methodName)) => Select(Ident(TermName(newReceiver)), TermName(methodName))
         case _ => p
       }
-      if(hasMatcherParams) {
+      matcherContext.fold(handledDefault) { context =>
         val pType = c.Expr[Any](c.typecheck(p)).actualType.widen // have to widen otherwise we get types like Boolean(false)
-        q"${c.prefix}.jmockDsl.having[$pType](org.specs2.matcher.Matchers.beEqualTo[$pType]($handledDefault))"
-      } else handledDefault
+        q"$context.having[$pType](org.specs2.matcher.Matchers.beEqualTo[$pType]($handledDefault))"
+      }
     }
   }
 
-  private def paramIsAMatcher[CTX <: blackbox.Context](c: CTX)(p: c.Tree) = {
+  private def matcherParamContext[CTX <: blackbox.Context](c: CTX)(p: c.Tree) = {
     import c.universe._
     p match {
       case Apply(TypeApply(Select(context, TermName(method)), _), _) if havingMethodNames(method) =>
         val calledOnType = c.Expr[Any](c.typecheck(context)).actualType
-        calledOnType.baseType(c.symbolOf[JMockDsl]) == typeOf[JMockDsl]
-      case _ => false
+        if(calledOnType.baseType(c.symbolOf[JMockDsl]) == typeOf[JMockDsl]) Some(context)
+        else None
+      case _ => None
     }
   }
 
