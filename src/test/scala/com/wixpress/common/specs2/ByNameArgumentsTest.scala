@@ -23,13 +23,15 @@ class ByNameArgumentsTest extends Specification with JMockTestSupport {
   }
 
   "support by name parameter matchers" in withJMock { jmock =>
-    import jmock.{Stubbed, mock, checking, having, expect}
+    import jmock.{Stubbed, mock, checking, having, expect, any}
     val mocked = mock[ByNameArgs]
     checking {
       expect.atMost(1)(mocked)(_.doSomething(having(beEqualTo(2)), "foo")) willReturn 42
+      expect.allowing(mocked)(_.doSomething(having(any[Int]), "bar")) willReturn(43)
     }
 
     mocked.doSomething(1 + 1, "foo") === 42
+    mocked.doSomething(1021, "bar") === 43
   }
 }
 
