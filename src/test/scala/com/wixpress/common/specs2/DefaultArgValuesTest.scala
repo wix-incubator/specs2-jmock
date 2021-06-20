@@ -22,6 +22,7 @@ class DefaultArgValuesTest extends Specification with JMockTestSupport {
           allowing(mocked).doSomething(3) willReturn 42
         }
         mocked.doSomething(3) must_=== 42
+        mocked.doSomething(3, "foo") must_=== 42
         mocked.doSomething(3, "bar") must throwA[ExpectationError]("unexpected invocation")
       }
 
