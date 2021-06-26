@@ -30,24 +30,9 @@ libraryDependencies ++= Seq(
   "org.hamcrest" % "hamcrest" % "2.1"
 )
 
+skip in publish := true
+
 scalacOptions in Test ++= Seq("-Yrangepos")
-
-publishTo := {
-  val sonatype = "https://oss.sonatype.org"
-  if(isSnapshot.value)
-    Some("Snapshots" at s"$sonatype/content/repositories/snapshots")
-  else
-    Some("Releases" at s"$sonatype/service/local/staging/deploy/maven2")
-}
-
-//credentials ++= (
-//  for {
-//    username <- sys.env.get("SONATYPE_USERNAME")
-//    password <- sys.env.get("SONATYPE_PASSWORD")
-//  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)
-//).toSeq
-//
-//publishMavenStyle := true
 
 publishArtifact in Test := false
 
