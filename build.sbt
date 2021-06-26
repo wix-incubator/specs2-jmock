@@ -1,10 +1,21 @@
-releaseSettings
-
 name := "specs2-jmock"
 
 description := "A specs2 JMock integration layer that provides a nice DSL, especially targeted at people used to JMock in Java and Junit."
 
 organization := "com.wix"
+
+licenses := Seq("BSD-style" → url("http://www.opensource.org/licenses/bsd-license.php"))
+
+developers := List(
+  Developer(
+    "pijusn",
+    "Pijus Navickas",
+    "pijusn@wix.com",
+    url("https://github.com/pijusn")
+  )
+)
+
+homepage := Some(url("https://github.com/wix/specs2-jmock"))
 
 crossScalaVersions := Seq("2.12.10", "2.11.12")
 
@@ -29,26 +40,18 @@ publishTo := {
     Some("Releases" at s"$sonatype/service/local/staging/deploy/maven2")
 }
 
-credentials ++= (
-  for {
-    username <- sys.env.get("SONATYPE_USERNAME")
-    password <- sys.env.get("SONATYPE_PASSWORD")
-  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)
-).toSeq
-
-publishMavenStyle := true
+//credentials ++= (
+//  for {
+//    username <- sys.env.get("SONATYPE_USERNAME")
+//    password <- sys.env.get("SONATYPE_PASSWORD")
+//  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)
+//).toSeq
+//
+//publishMavenStyle := true
 
 publishArtifact in Test := false
 
-ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
-
-ReleaseKeys.crossBuild := true
-
-licenses := Seq("BSD-style" → url("http://www.opensource.org/licenses/bsd-license.php"))
-
 pomIncludeRepository := { _ ⇒ false }
-
-homepage := Some(url("https://github.com/wix/specs2-jmock"))
 
 pomExtra :=
 <scm>
