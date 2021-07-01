@@ -43,6 +43,11 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   private val synchroniser: Synchroniser = new Synchroniser
   private[this] val context: Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
   val expectations = new Expectations
+  private var defaultArgsCompatabilityInitial = true
+
+  private lazy val defaultArgsCompatabilityMode = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = defaultArgsCompatabilityInitial
+  }
 
   protected def assertIsSatisfied[T: AsResult]: Result with Product with Serializable = {
     Try(context.assertIsSatisfied()).map(_ ⇒ Success()).recover {
@@ -68,6 +73,22 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
   def useJavaReflectionImposterizer() = {
     usingJavaReflectionImposteriser = true
   }
+
+  def disableDefaultArgsCompatibility() = {
+    defaultArgsCompatabilityInitial = false
+  }
+
+  def withoutDefaultArgsCompatibility[T](t: => T) =
+    withDefaultArgsCompatibilityMode(compatibility = false)(t)
+
+  def withDefaultArgsCompatibilityMode[T](compatibility: Boolean)(t: => T) = {
+    val before = defaultArgsCompatabilityMode.get
+    defaultArgsCompatabilityMode.set(compatibility)
+    try t
+    finally defaultArgsCompatabilityMode.set(before)
+  }
+
+  private [specs2] def isDefaultArgsCompatibilityEnabled = defaultArgsCompatabilityMode.get
 
   def allowing[T](t: T): T = expectations.allowing(t)
   def never[T](t: T): T = expectations.never(t)
@@ -340,11 +361,11 @@ object Macros {
     val processedParams = methodParams.map(_.map(processParam(c)(_, receiver, capturingVal, firstMatcherContext)))
     val result =
       q"""{
-              val ${ TermName(capturingVal) } = $start
+              val ${ TermName(capturingVal) } = ${c.prefix}.jmockDsl.withoutDefaultArgsCompatibility($start)
               ..${ processedParams.toList.flatten.zipWithIndex.map { case (p, i) => q"val ${ TermName(s"pp$$$i") } = $p"}}
               ${ MethodInvocation(c)(capturingVal, method, methodParams.map(_.indices.toList.map(i => Ident(TermName(s"pp$$$i"))))) }
            }"""
-//    println(s"generated: ${ showCode(result) }")
+    println(s"generated: ${ showCode(result) }")
     result
   }
 

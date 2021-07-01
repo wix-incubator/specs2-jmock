@@ -9,13 +9,13 @@ This is a specs2 adapter + DSL for using the popular mocking framework JMock
 <dependency>
     <groupId>com.wix</groupId>
     <artifactId>specs2-jmock_${scala.version}</artifactId>
-    <version>x.y.z</version>
+    <version>1.6.1</version>
     <scope>test</scope>
 </dependency>
 ```
 ### SBT
 ```sbt
-libraryDependencies += "com.wix" %% "specs2-jmock" % "x.y.z"
+libraryDependencies += "com.wix" %% "specs2-jmock" % "1.6.1"
 ```
 
 * for latest version check [releases](https://github.com/wix/specs2-jmock/releases)
@@ -91,7 +91,37 @@ public interface FooTrait {
 ```
 And at the call site, `foo.bar(1)` is converted to `foo.bar(1, foo.bar$default$2())`
 
-`specs2-jmock` fixes this, by not passing the calls to such generated methods to JMock interceptor, but rather calling the generated implementations instead.
+`specs2-jmock` fixes this, by not passing the calls to such generated methods to JMock interceptor, but rather calling the generated implementations instead.\
+For backward compatibility, by default, when capturing expectations, default value methods (like `foo.bar$default$2()`) return `null`/`0`/`false`... etc.,
+instead of the actual default values, as defined on the mocked trait/class.
+So by default:
+
+```scala
+import com.wixpress.common.specs2.JMock
+import org.jmock._
+import org.specs2.mutable.Specification
+
+trait FooTrait { def bar(i: Int, b: Boolean = true) }
+class Test extends Specification with JMock {
+  "test" in {
+    val mockFoo = mock[FooTrait]
+    checking {
+      // captures expectation of bar(3, false) for comaptibility
+      allowing(mockFoo).bar(3) willReturn 42
+      // expects bar(2, true) - as this is a new DSL, no compatibility required 
+      expect.allowing(mockFoo)(_.bar(2)) willReturn 43
+    }
+    mockFoo.bar(3, false) === 42
+    mockFoo.bar(2) === 43  
+    mockFoo.bar(3) === 42 // unexpected invocation: expected bar(2, false)
+    
+  }  
+}
+```
+To disable this compatibility behavior call `disableDefaultArgsCompatibility()` at the beginning of the test.
+You can also wrap your expectation definition in `withoutDefaultArgsCompatibility {}`.
+This compatibility behavior is disabled when using the new DSL flavor, see bellow
+
 
 *Note*: for mocked traits this doesn't work under Scala 2.11, as 2.11 compiler doesn't use Java 8 default interface methods.
 Mocked classes (when using `useClassImposterizer()`) are supported. 
@@ -127,7 +157,7 @@ allowing(mockFoo).bar(having(beGreaterThan(1)), having(beEqualTo("foo"))) willRe
 ```
 The downside, is that now your test code has to be aware of the default values of the arguments, and if they change your test will need to change as well.
 
-Another way is to use a new JMock DSL flavor - accessed using `expect.` prefix - that actually allows mixing values and matchers in method arguments.\
+Another way is to use a **New JMock DSL flavor** - accessed using `expect.` prefix - that actually allows mixing values and matchers in method arguments.\
 The methods under `expect` (`allowing`, `oneOf`, etc.) are macros, that generate code where values are wrapped in `having(beEqualTo())`, if one of the argumets is a matcher.
 The macros also support named arguments passed out of order. 
 
