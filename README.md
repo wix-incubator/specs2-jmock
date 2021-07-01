@@ -9,13 +9,13 @@ This is a specs2 adapter + DSL for using the popular mocking framework JMock
 <dependency>
     <groupId>com.wix</groupId>
     <artifactId>specs2-jmock_${scala.version}</artifactId>
-    <version>1.6.1</version>
+    <version>1.6.2</version>
     <scope>test</scope>
 </dependency>
 ```
 ### SBT
 ```sbt
-libraryDependencies += "com.wix" %% "specs2-jmock" % "1.6.1"
+libraryDependencies += "com.wix" %% "specs2-jmock" % "1.6.2"
 ```
 
 * for latest version check [releases](https://github.com/wix/specs2-jmock/releases)

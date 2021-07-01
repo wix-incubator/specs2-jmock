@@ -8,6 +8,7 @@ import org.specs2.specification.Scope
 
 import scala.language.implicitConversions
 import JMockTestSupport._
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.jmock.api.ExpectationError
 
 class JMockTest extends Specification with JMock {
@@ -483,7 +484,19 @@ class JMockTest extends Specification with JMock {
       mockDummy.funcWithFourParameters("hello", 1, 'k', 3.0) must be_===("hello1k3.0")
     }
   }
+  "Jackson serialization of doesn't fail" in {
+    useClassImposterizer()
+    val mapper = new ObjectMapper()
+    val builder = mock[Builder]
+    checking {
+      allowing(builder).build("foo")
+    }
+
+    val data = builder.build("foo")
+    mapper.writeValueAsString(data) === "{}"
+  }
 }
+
 
 trait Dummy {
   def func1: String
@@ -524,3 +537,9 @@ class DummyRepeater(dummy: Dummy) {
 }
 
 class HigherKind[T](kind: T)
+
+class Builder {
+  def build(foo: String): Data = Data("bar")
+}
+
+case class Data(field: String)
