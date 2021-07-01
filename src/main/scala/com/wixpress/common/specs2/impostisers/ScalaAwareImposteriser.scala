@@ -1,7 +1,11 @@
 package com.wixpress.common.specs2.impostisers
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.{JsonSerializer, SerializerProvider}
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.wixpress.common.specs2.JMockDsl
-import com.wixpress.common.specs2.impostisers.ScalaAwareImposteriser.MockInCapturingState
+import com.wixpress.common.specs2.impostisers.ScalaAwareImposteriser.{JacksonSafe, MockInCapturingState}
 import org.jmock.api.{Imposteriser, Invocation, Invokable}
 import org.jmock.internal.{CaptureControl, ExpectationCapture, InvocationToExpectationTranslator, ObjectMethodExpectationBouncer, ReturnDefaultValueAction}
 
@@ -29,7 +33,7 @@ class ScalaAwareImposteriser(delegate: Imposteriser, jmock: JMockDsl) extends Im
         }
       }.asInstanceOf[AnyRef]
     }
-    delegate.imposterise(interceptor, mockedType, ancilliaryTypes:_*)
+    delegate.imposterise(interceptor, mockedType, ancilliaryTypes :+ classOf[JacksonSafe] :_*)
   }
 
   /**
@@ -90,5 +94,15 @@ object ScalaAwareImposteriser {
   def isDefaultArgMethod(method: Method) =
     method.getParameterCount == 0 && defaultArgMethodPattern.matcher(method.getName).matches()
 
+  @JsonSerialize(using = classOf[EmptySerializer[_]])
+  trait JacksonSafe
+
+  class EmptySerializer[T] extends JsonSerializer[T] {
+    override def serialize(value: T,
+                           gen: JsonGenerator,
+                           serializers: SerializerProvider): Unit = gen.writeRaw("{}")
+  }
+
   trait MockInCapturingState
+
 }

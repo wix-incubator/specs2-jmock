@@ -34,7 +34,10 @@ libraryDependencies ++= Seq(
   "org.jmock" % "jmock" % "2.12.0",
   "org.jmock" % "jmock-junit4" % "2.12.0",
   "org.jmock" % "jmock-imposters" % "2.12.0",
-  "org.hamcrest" % "hamcrest" % "2.1"
+  "org.hamcrest" % "hamcrest" % "2.1",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.12.3",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.12.3" % Test,
 )
 crossScalaVersions := Seq("2.12.10", "2.11.12")
 scalaVersion := "2.12.10"
