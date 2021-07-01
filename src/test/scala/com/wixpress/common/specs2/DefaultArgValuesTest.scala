@@ -16,7 +16,9 @@ class DefaultArgValuesTest extends Specification with JMockTestSupport {
   Fragments.foreach(variants) { test =>
     s"when mocking a ${ test.what }" >> {
       s"[${ test.what }] method expectation with non-default param - as value" in withJMock { jmock =>
+        jmock.disableDefaultArgsCompatibility() // needed this to use regular allowing
         import jmock.{Stubbed, allowing, checking}
+
         val mocked = test.mock(jmock)
         checking {
           allowing(mocked).doSomething(3) willReturn 42
@@ -29,15 +31,17 @@ class DefaultArgValuesTest extends Specification with JMockTestSupport {
       s"[${ test.what }] method expectation with non default and default params - as values" in withJMock { jmock =>
         import jmock.{Stubbed, allowing, checking}
         val mocked = test.mock(jmock)
-        checking {
-          allowing(mocked).doSomething(3, "bar") willReturn 42
+        jmock.withoutDefaultArgsCompatibility { // needed this to use regular allowing
+          checking {
+            allowing(mocked).doSomething(3, "bar") willReturn 42
+          }
         }
         mocked.doSomething(3, "bar") must_=== 42
         mocked.doSomething(3, "foo") must throwA[ExpectationError]("unexpected invocation")
       }
 
       s"[${ test.what }] method expectation with non-default param - as matcher" in withJMock { jmock =>
-        import jmock.{Stubbed, allowing, checking, expect, having}
+        import jmock.{Stubbed, checking, expect, having}
         val mocked = test.mock(jmock)
         checking {
            expect.allowing(mocked)(_.doSomething(having(beEqualTo(3)))) willReturn 42
@@ -69,6 +73,16 @@ class DefaultArgValuesTest extends Specification with JMockTestSupport {
       }
       mocked.doSomething(3) must throwA[ExpectationError]("unexpected invocation")
     }
+  }
+
+  "[Backward compatibility] method expectation with unspecified default args - for calls with all args specified" in withJMock { jmock =>
+    import jmock.{Stubbed, allowing, checking, mock}
+    jmock.useClassImposterizer()
+    val mocked = mock[ClassToMock]
+    checking {
+      allowing(mocked).doSomething(3, "bar") willReturn 42
+    }
+    mocked.doSomething(3, "bar", false) must_=== 42
   }
 
   case class Variant[T <: ToMock](isClass: Boolean)(implicit val classTag: ClassTag[T]) {
