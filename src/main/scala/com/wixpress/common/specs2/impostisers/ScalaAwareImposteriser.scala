@@ -1,13 +1,12 @@
 package com.wixpress.common.specs2.impostisers
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.{JsonSerializer, SerializerProvider}
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.{JsonSerializer, SerializerProvider}
 import com.wixpress.common.specs2.JMockDsl
 import com.wixpress.common.specs2.impostisers.ScalaAwareImposteriser.{JacksonSafe, MockInCapturingState}
 import org.jmock.api.{Imposteriser, Invocation, Invokable}
-import org.jmock.internal.{CaptureControl, ExpectationCapture, InvocationToExpectationTranslator, ObjectMethodExpectationBouncer, ReturnDefaultValueAction}
+import org.jmock.internal._
 
 import java.lang.reflect.Method
 
@@ -100,7 +99,10 @@ object ScalaAwareImposteriser {
   class EmptySerializer[T] extends JsonSerializer[T] {
     override def serialize(value: T,
                            gen: JsonGenerator,
-                           serializers: SerializerProvider): Unit = gen.writeRaw("{}")
+                           serializers: SerializerProvider): Unit = {
+      gen.writeStartObject()
+      gen.writeEndObject()
+    }
   }
 
   trait MockInCapturingState

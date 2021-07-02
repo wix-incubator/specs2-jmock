@@ -493,7 +493,7 @@ class JMockTest extends Specification with JMock {
     }
 
     val data = builder.build("foo")
-    mapper.writeValueAsString(data) === "{}"
+    mapper.writeValueAsString(mapper.valueToTree(data)) === "{}"
   }
 }
 
