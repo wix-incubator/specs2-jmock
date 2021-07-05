@@ -32,6 +32,7 @@ import org.specs2.mutable.Specification
 trait FooTrait {
   def bar: String
   def baz: Unit
+  def foo(i: Int, s: String): Int
 }
 
 class JMockTest extends Specification with JMock {
@@ -41,10 +42,14 @@ class JMockTest extends Specification with JMock {
       checking {
         allowing(mockFoo).bar.willReturn("foo")
         oneOf(mockFoo).baz
+        // New DSL flavor - allows mixing values and matchers, and more!
+        expect.allowing(mockFoo)(_.foo(42, having(any[String]))) willReturn 43
       }
       val result = mockFoo.bar
       mockFoo.baz
       result must be equalTo "foo"
+      
+      mockFoo.foo(42, "blah") === 43
     }
     //...
   }
