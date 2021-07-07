@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.3",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.12.3" % Test,
 )
-crossScalaVersions := Seq("2.12.10", "2.11.12")
+crossScalaVersions := Seq("2.12.10", "2.11.12", "2.13.6")
 scalaVersion := "2.12.10"
 Test / scalacOptions ++= Seq("-Yrangepos")
 publishTo := Some(Resolver.file("sonatype-local-bundle", sonatypeBundleDirectory.value))
