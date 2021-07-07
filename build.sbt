@@ -29,12 +29,12 @@ verifyNotSnapshot := {
 }
 
 libraryDependencies ++= Seq(
-  "org.specs2" %% "specs2-core" % "4.3.1",
-  "org.specs2" %% "specs2-mock" % "4.3.1",
+  "org.specs2" %% "specs2-core" % "4.8.3",
+  "org.specs2" %% "specs2-mock" % "4.8.3",
   "org.jmock" % "jmock" % "2.12.0",
   "org.jmock" % "jmock-junit4" % "2.12.0",
   "org.jmock" % "jmock-imposters" % "2.12.0",
-  "org.hamcrest" % "hamcrest" % "2.1",
+  "org.hamcrest" % "hamcrest" % "2.2",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.12.3",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.3",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.12.3" % Test,
