@@ -316,13 +316,17 @@ object Macros {
           Block(statements, Apply(Select(Ident(TermName(receiver)), TermName(method)), methodParams))
          ) if statements.size == methodParams.size &&  lambdaParam == receiver =>
 
-        val paramMap = statements.collect {
+        var paramMap = statements.collect {
           case ValDef(_, name, _, p) => name -> p
         }.toMap
         if(paramMap.size != statements.size) {
           abortInvalidLambda("vals-count")
         }
-        val args = methodParams.collect { case Ident(t: TermName) => paramMap.get(t).toSeq }.flatten
+        val args = methodParams.collect {
+          case Ident(t: TermName) => paramMap.get(t).toSeq
+          case t => Seq(t)
+        }.flatten
+
         if(args.size != methodParams.size) {
           abortInvalidLambda(s"params-count ${args.size} != ${methodParams.size}")
         }
@@ -365,7 +369,7 @@ object Macros {
               ..${ processedParams.toList.flatten.zipWithIndex.map { case (p, i) => q"val ${ TermName(s"pp$$$i") } = $p"}}
               ${ MethodInvocation(c)(capturingVal, method, methodParams.map(_.indices.toList.map(i => Ident(TermName(s"pp$$$i"))))) }
            }"""
-    println(s"generated: ${ showCode(result) }")
+//    println(s"generated: ${ showCode(result) }")
     result
   }
 
