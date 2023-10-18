@@ -11,7 +11,10 @@ import org.jmock.internal._
 import java.lang.reflect.Method
 
 class ScalaAwareImposteriser(delegate: Imposteriser, jmock: JMockDsl) extends Imposteriser {
-  private val defaultAction = new ScalaAwareDefaultReturnValues(delegate)
+  private val defaultAction = new ReturnDefaultValueAction(delegate)
+  JMockDsl.defaultReturnValues.foreach {
+    case (clazz, value) => defaultAction.addResult(clazz, value)
+  }
   override def canImposterise(`type`: Class[_]): Boolean = delegate.canImposterise(`type`)
 
   override def imposterise[T](mockObject: Invokable, mockedType: Class[T], ancilliaryTypes: Class[_]*): T = {
@@ -110,16 +113,3 @@ object ScalaAwareImposteriser {
   trait MockInCapturingState
 }
 
-private [impostisers] class ScalaAwareDefaultReturnValues(delegate: Imposteriser) extends ReturnDefaultValueAction(delegate) {
-  override def invoke(invocation: Invocation): AnyRef = {
-    val returnType = invocation.getInvokedMethod.getReturnType
-    if (returnType == classOf[Set[_]]) Set.empty
-    else if (returnType == classOf[Map[_, _]]) Map.empty
-    else if (returnType == classOf[Option[_]]) None
-    else if (returnType == classOf[Seq[_]]) Seq.empty
-    else if (returnType == classOf[List[_]]) List.empty
-    else if (returnType == classOf[Iterable[_]]) Iterable.empty
-    else if (returnType == classOf[Vector[_]]) Vector.empty
-    else super.invoke(invocation)
-  }
-}
