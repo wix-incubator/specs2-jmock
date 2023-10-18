@@ -84,7 +84,10 @@ class ScalaAwareImposteriser(delegate: Imposteriser, jmock: JMockDsl) extends Im
                                            orElse: => AnyRef) = {
     try {
       SpecialMethodInvoker.invoke(inv.getInvokedObject, inv.getInvokedMethod, inv.getParametersAsArray)
-    } catch { case _: Throwable => orElse }
+    } catch { case e: Throwable =>
+      traceError(s"Failed to invoke ${inv.getInvokedMethod} on ${inv.getInvokedObject} - falling back to the mock", e)
+      orElse
+    }
   }
 }
 

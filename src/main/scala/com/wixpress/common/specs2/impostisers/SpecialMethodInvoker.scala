@@ -24,6 +24,8 @@ object SpecialMethodInvoker extends SpecialMethodInvoker {
                       args: Array[AnyRef]): AnyRef = instance.invoke(impl, method, args)
 
   private lazy val java8Invoker = new SpecialMethodInvoker {
+    override def toString: String = "SpecialMethodInvoker.java8Invoker"
+
     private val constructor: Constructor[MethodHandles.Lookup] =
       classOf[MethodHandles.Lookup].getDeclaredConstructor(classOf[Class[_]])
     constructor.setAccessible(true)
@@ -39,18 +41,25 @@ object SpecialMethodInvoker extends SpecialMethodInvoker {
   }
 
   private lazy val java9AndLaterInvoker = new SpecialMethodInvoker {
+    override def toString: String = "SpecialMethodInvoker.java9AndLaterInvoker"
+
     override def invoke(proxy: AnyRef,
                         method: Method,
                         args: Array[AnyRef]): AnyRef = {
 
-      MethodHandles.lookup
+      // calling `MethodHandles.privateLookupIn(method.getDeclaringClass, MethodHandles.lookup)`
+      // using reflection so it can be compiled under java 8
+      val privateLookup = classOf[MethodHandles].getMethod("privateLookupIn", classOf[Class[_]], classOf[MethodHandles.Lookup])
+        .invoke(null, method.getDeclaringClass, MethodHandles.lookup).asInstanceOf[MethodHandles.Lookup]
+
+      privateLookup
         .findSpecial(
           method.getDeclaringClass,
           method.getName,
           MethodType.methodType(method.getReturnType, method.getParameterTypes),
           method.getDeclaringClass)
         .bindTo(proxy)
-        .invokeWithArguments(args:_*)
+        .invokeWithArguments(args: _*)
     }
   }
 }
@@ -58,13 +67,16 @@ object SpecialMethodInvoker extends SpecialMethodInvoker {
 sealed trait SpecialMethodInvoker { outer =>
   def invoke(impl: AnyRef, method: Method, args: Array[AnyRef]): AnyRef
 
-  def orElse(that: SpecialMethodInvoker) = new SpecialMethodInvoker {
+  def orElse(that: => SpecialMethodInvoker) = new SpecialMethodInvoker {
+    private lazy val fallback = that
     override def invoke(impl: AnyRef,
                         method: Method,
                         args: Array[AnyRef]): AnyRef = {
        try outer.invoke(impl, method, args)
        catch {
-         case _: Throwable => that.invoke(impl, method, args)
+         case e: Throwable =>
+           traceError(s"Failed to invoke $method on $impl - falling back $fallback", e)
+           fallback.invoke(impl, method, args)
        }
     }
   }
