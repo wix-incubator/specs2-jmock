@@ -42,9 +42,6 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
 
   private val synchroniser: Synchroniser = new Synchroniser
   private[this] val context: Mockery = new Mockery{{setThreadingPolicy(synchroniser)}}
-  JMockDsl.defaultReturnValues.foreach {
-    case (clazz, value) => context.setDefaultResultForType(clazz, value)
-  }
   val expectations = new Expectations
   private var defaultArgsCompatabilityInitial = true
 
@@ -194,6 +191,14 @@ trait JMockDsl extends MustThrownMatchers with ArgumentsShortcuts with Arguments
         iterator.next().invoke(invocation)
       }
     }
+  }
+
+  def addDefaultReturnValueFor[T: Manifest](value: T) = {
+    context.setDefaultResultForType(manifest[T].runtimeClass, value)
+  }
+
+  def addDefaultReturnValues(vals: (Class[_], Any)*) = {
+    vals.foreach { case (clazz, value) => context.setDefaultResultForType(clazz, value) }
   }
 
   implicit class Stubbed[T](c: T) {
@@ -410,13 +415,15 @@ object Macros {
 }
 
 object JMockDsl {
-  private[specs2] val defaultReturnValues = Map[Class[_], Any](
-    classOf[scala.Option[_]] -> None,
-    classOf[scala.collection.Seq[_]] -> Seq.empty,
-    classOf[scala.collection.Set[_]] -> Set.empty,
-    classOf[scala.collection.Map[_, _]] -> Map.empty,
-    classOf[scala.collection.immutable.Map[_, _]] -> Map.empty,
-    classOf[scala.collection.immutable.Seq[_]] -> Seq.empty,
-    classOf[scala.collection.immutable.Set[_]] -> Set.empty
-  )
+  object DefaultReturnValues {
+    val basicScalaCollections = Map[Class[_], Any](
+      classOf[scala.Option[_]] -> None,
+      classOf[scala.collection.Seq[_]] -> Seq.empty,
+      classOf[scala.collection.Set[_]] -> Set.empty,
+      classOf[scala.collection.Map[_, _]] -> Map.empty,
+      classOf[scala.collection.immutable.Map[_, _]] -> Map.empty,
+      classOf[scala.collection.immutable.Seq[_]] -> Seq.empty,
+      classOf[scala.collection.immutable.Set[_]] -> Set.empty
+    )
+  }
 }
