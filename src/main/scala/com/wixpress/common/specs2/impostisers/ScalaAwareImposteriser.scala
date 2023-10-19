@@ -12,9 +12,6 @@ import java.lang.reflect.Method
 
 class ScalaAwareImposteriser(delegate: Imposteriser, jmock: JMockDsl) extends Imposteriser {
   private val defaultAction = new ReturnDefaultValueAction(delegate)
-  JMockDsl.defaultReturnValues.foreach {
-    case (clazz, value) => defaultAction.addResult(clazz, value)
-  }
   override def canImposterise(`type`: Class[_]): Boolean = delegate.canImposterise(`type`)
 
   override def imposterise[T](mockObject: Invokable, mockedType: Class[T], ancilliaryTypes: Class[_]*): T = {
